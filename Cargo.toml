@@ -1,0 +1,18 @@
+[package]
+name = "sigta"
+license = "MIT"
+version = "0.1.0"
+edition = "2021"
+description = "Signal and Technical Analysis"
+readme = "README.md"
+homepage = "https://github.com/Ohkthx/sigta-rs"
+repository = "https://github.com/Ohkthx/sigta-rs"
+keywords = ["trading", "signal", "technical", "analysis", "ta"]
+include = ["*/**.rs"]
+
+[features]
+default = []
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
