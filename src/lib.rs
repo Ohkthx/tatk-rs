@@ -1,14 +1,9 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+//! Technical Analysus Tools written in Rust.
+//!
+//! This crate is used to an analyze data from samples using common indicators to generate signals.
+pub mod buffer;
+pub mod error;
+pub mod indicators;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+#[cfg(feature = "test-data")]
+pub mod test_data;

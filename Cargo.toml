@@ -1,17 +1,34 @@
 [package]
 name = "sigta"
 license = "MIT"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Signal and Technical Analysis"
 readme = "README.md"
 homepage = "https://github.com/Ohkthx/sigta-rs"
 repository = "https://github.com/Ohkthx/sigta-rs"
 keywords = ["trading", "signal", "technical", "analysis", "ta"]
-include = ["*/**.rs"]
+include = ["*/**/***.rs"]
 
 [features]
 default = []
+full = ["test-data"]
+test-data = []
+
+[[example]]
+name = "simple_moving_average"
+path = "examples/simple_moving_average.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "exponential_moving_average"
+path = "examples/exponential_moving_average.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "double_exponential_moving_average"
+path = "examples/double_exponential_moving_average.rs"
+required-features = ["test-data"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
