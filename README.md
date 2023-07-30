@@ -1,22 +1,22 @@
 <p align="center">
-    <a href="https://github.com/Ohkthx/sigta-rs#tips-appreciated" title="Donate with Bitcoin!">
+    <a href="https://github.com/Ohkthx/tatk-rs#tips-appreciated" title="Donate with Bitcoin!">
         <img src="https://img.shields.io/badge/donate-black?style=for-the-badge&logo=bitcoin&logoColor=f38ba8&label=BITCOIN&labelColor=11111b&color=f38ba8"
             alt="Donate with Bitcoin!"></a>
-    <a href="https://github.com/Ohkthx/sigta-rs#tips-appreciated" title="Donate with Ethereum!">
+    <a href="https://github.com/Ohkthx/tatk-rs#tips-appreciated" title="Donate with Ethereum!">
         <img src="https://img.shields.io/badge/donate-black?style=for-the-badge&logo=ethereum&logoColor=fab387&label=ETHEREUM&labelColor=11111b&color=fab387"
             alt="Donate with Ethereum!"></a>
-    <a href="https://github.com/Ohkthx/sigta-rs#tips-appreciated" title="Donate with BNB (Binance)!">
+    <a href="https://github.com/Ohkthx/tatk-rs#tips-appreciated" title="Donate with BNB (Binance)!">
         <img src="https://img.shields.io/badge/donate-black?style=for-the-badge&logo=binance&logoColor=f9e2af&label=BINANCE&labelColor=11111b&color=f9e2af"
             alt="Donate with BNB!"></a>
-</p
+</p>
 
-# Signal and Technical Analysis
+# TATK, Technical Analysis Toolkit
 
 The objective of this crate is analyzing signals and indicators of data.
 
 ```toml
 [dependencies]
-sigta = { git = "https://github.com/ohkthx/sigta-rs" }
+tatk = { git = "https://github.com/ohkthx/tatk-rs" }
 ```
 
 ## Features
@@ -29,11 +29,16 @@ sigta = { git = "https://github.com/ohkthx/sigta-rs" }
 
 ### TODO
 
-- All of it.
+- Add additional indicators and test.
 
 ## Examples
 
-None to date.
+- **Simple Moving Average (SMA)**: [simple_moving_average.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/simple_moving_average.rs)
+  - `cargo run --example simple_moving_average --all-features`
+- **Exponential Moving Average (EMA)**: [exponential_moving_average.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/exponential_moving_average.rs)
+  - `cargo run --example exponential_moving_average --all-features`
+- **Double Exponential Moving Average (DEMA)**: [double_exponential_moving_average.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/double_exponential_moving_average.rs)
+  - `cargo run --example double_exponential_moving_average --all-features`
 
 ## Tips Appreciated!
 
