@@ -1,6 +1,6 @@
 //! Demonstrates how to initialize and use a DEMA.
-use sigta::indicators::DEMA;
-use sigta::test_data::TEST_DATA;
+use tatk::indicators::DEMA;
+use tatk::test_data::TEST_DATA;
 
 fn main() {
     let period: usize = 10;

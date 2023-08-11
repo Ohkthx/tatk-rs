@@ -11,6 +11,8 @@ pub enum TAError {
     InvalidArray,
     /// Indexes provided are not valid.
     InvalidIndex(usize, usize),
+    /// Line length is not valid.
+    InvalidLine(String),
 }
 
 impl fmt::Display for TAError {
@@ -25,6 +27,9 @@ impl fmt::Display for TAError {
                     "invalid indexes, start: {} and end: {}",
                     start_idx, end_idx
                 )
+            }
+            TAError::InvalidLine(line) => {
+                write!(f, "invalid line, {} is too small", line)
             }
         }
     }

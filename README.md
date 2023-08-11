@@ -39,6 +39,8 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
   - `cargo run --example exponential_moving_average --all-features`
 - **Double Exponential Moving Average (DEMA)**: [double_exponential_moving_average.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/double_exponential_moving_average.rs)
   - `cargo run --example double_exponential_moving_average --all-features`
+- **Moving Average Convergence Divergence (MACD)**: [moving_average_convergence_divergence.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/moving_average_convergence_divergence.rs)
+  - `cargo run --example moving_average_convergence_divergence --all-features`
 
 ## Tips Appreciated!
 

@@ -30,6 +30,8 @@ pub struct EMA {
     period: usize,
     /// Current value for the EMA.
     value: f64,
+    /// SMA for the same period
+    sma: SMA,
 }
 
 impl EMA {
@@ -52,9 +54,15 @@ impl EMA {
             last_ema = Self::calculate(period, &last_ema, value);
         }
 
+        let sma: SMA = match SMA::new(period, data) {
+            Ok(v) => v,
+            Err(error) => return Err(error),
+        };
+
         Ok(Self {
             period,
             value: last_ema,
+            sma,
         })
     }
 
@@ -68,12 +76,26 @@ impl EMA {
         self.value
     }
 
+    /// Returns true if the EMA is above an SMA of the same period.
+    pub fn is_above(&self) -> bool {
+        self.value > self.sma.value()
+    }
+
+    /// Returns true if the EMA is below an SMA of the same period.
+    pub fn is_below(&self) -> bool {
+        self.value < self.sma.value()
+    }
+
     /// Supply an additional value to recalculate a new EMA.
     ///
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
     pub fn next(&mut self, value: f64) -> f64 {
+        // Progress the SMA by a value.
+        self.sma.next(value);
+
+        // Get the next EMA value.
         self.value = Self::calculate(self.period, &self.value, &value);
         self.value
     }

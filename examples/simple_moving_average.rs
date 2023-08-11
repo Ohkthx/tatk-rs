@@ -1,6 +1,6 @@
 //! Demonstrates how to initialize and use a SMA.
-use sigta::indicators::SMA;
-use sigta::test_data::TEST_DATA;
+use tatk::indicators::SMA;
+use tatk::test_data::TEST_DATA;
 
 fn main() {
     let period: usize = 10;

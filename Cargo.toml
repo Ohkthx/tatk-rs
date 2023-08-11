@@ -1,12 +1,12 @@
 [package]
-name = "sigta"
+name = "tatk"
 license = "MIT"
 version = "0.1.1"
 edition = "2021"
-description = "Signal and Technical Analysis"
+description = "Technical Analysis Toolkit"
 readme = "README.md"
-homepage = "https://github.com/Ohkthx/sigta-rs"
-repository = "https://github.com/Ohkthx/sigta-rs"
+homepage = "https://github.com/Ohkthx/tatk-rs"
+repository = "https://github.com/Ohkthx/tatk-rs"
 keywords = ["trading", "signal", "technical", "analysis", "ta"]
 include = ["*/**/***.rs"]
 
@@ -28,6 +28,11 @@ required-features = ["test-data"]
 [[example]]
 name = "double_exponential_moving_average"
 path = "examples/double_exponential_moving_average.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "moving_average_convergence_divergence"
+path = "examples/moving_average_convergence_divergence.rs"
 required-features = ["test-data"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
