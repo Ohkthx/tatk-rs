@@ -1,4 +1,4 @@
-//! Simple Moving Average
+//! Simple Moving Average (SMA)
 //!
 //! Average moves within a period.
 use crate::buffer::Buffer;

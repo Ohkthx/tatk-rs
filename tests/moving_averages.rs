@@ -66,26 +66,3 @@ fn next_dema() {
     let mut dema = DEMA::new(14, TEST_DATA).unwrap();
     assert_eq!(dema.next(107.000000), 108.91612556961066);
 }
-
-#[test]
-#[cfg(feature = "test-data")]
-/// Create and calculate a MACD using 252 data points with a short of 12, long of 26, and signal of 9.
-fn create_macd() {
-    use tatk::indicators::MACD;
-    use tatk::test_data::TEST_DATA;
-
-    let macd = MACD::new(12, 26, 9, TEST_DATA).unwrap();
-    assert_eq!(macd.value(), 0.9040092995013111);
-}
-
-#[test]
-#[cfg(feature = "test-data")]
-/// Creates a MACD from 252 data points with short of 12, long of 26, and signal of 9, then adds an additional data point
-/// to move the ensure the window of viewed is moving.
-fn next_macd() {
-    use tatk::indicators::MACD;
-    use tatk::test_data::TEST_DATA;
-
-    let mut macd = MACD::new(12, 26, 9, TEST_DATA).unwrap();
-    assert_eq!(macd.next(107.000000), 0.6789823967962718);
-}

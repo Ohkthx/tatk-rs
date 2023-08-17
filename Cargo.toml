@@ -35,6 +35,11 @@ name = "moving_average_convergence_divergence"
 path = "examples/moving_average_convergence_divergence.rs"
 required-features = ["test-data"]
 
+[[example]]
+name = "relative_strength_index"
+path = "examples/relative_strength_index.rs"
+required-features = ["test-data"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

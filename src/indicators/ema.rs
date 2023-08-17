@@ -1,4 +1,4 @@
-//! Exponential Moving Average
+//! Exponential Moving Average (EMA)
 //!
 //! # Formula
 //!
