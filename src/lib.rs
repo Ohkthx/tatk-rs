@@ -5,5 +5,10 @@ pub mod buffer;
 pub mod error;
 pub mod indicators;
 
+#[cfg(not(feature = "f32"))]
+pub(crate) type Num = f64;
+#[cfg(feature = "f32")]
+pub(crate) type Num = f32;
+
 #[cfg(feature = "test-data")]
 pub mod test_data;

@@ -6,7 +6,7 @@ fn create_macd() {
     use tatk::test_data::TEST_DATA;
 
     let macd = MACD::new(12, 26, 9, TEST_DATA).unwrap();
-    assert_eq!(macd.value(), 0.9040092995013111);
+    assert_eq!(macd.value(), 0.9040092995013111)
 }
 
 #[test]
@@ -18,7 +18,7 @@ fn next_macd() {
     use tatk::test_data::TEST_DATA;
 
     let mut macd = MACD::new(12, 26, 9, TEST_DATA).unwrap();
-    assert_eq!(macd.next(107.000000), 0.6789823967962718);
+    assert_eq!(macd.next(107.000000), 0.6789823967962718)
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn create_rsi() {
     use tatk::test_data::TEST_DATA;
 
     let rsi = RSI::new(14, TEST_DATA).unwrap();
-    assert_eq!(rsi.value(), 49.63210207086755);
+    assert_eq!(rsi.value(), 49.63210207086755)
 }
 
 #[test]

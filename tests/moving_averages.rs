@@ -29,7 +29,7 @@ fn create_ema() {
     use tatk::test_data::TEST_DATA;
 
     let ema = EMA::new(10, TEST_DATA).unwrap();
-    assert_eq!(ema.value(), 108.97521174143839);
+    assert_eq!(ema.value(), 108.97521174143839)
 }
 
 #[test]
@@ -41,7 +41,7 @@ fn next_ema() {
     use tatk::test_data::TEST_DATA;
 
     let mut ema = EMA::new(10, TEST_DATA).unwrap();
-    assert_eq!(ema.next(107.000000), 108.61608233390413);
+    assert_eq!(ema.next(107.000000), 108.61608233390413)
 }
 
 #[test]
@@ -52,7 +52,7 @@ fn create_dema() {
     use tatk::test_data::TEST_DATA;
 
     let dema = DEMA::new(14, TEST_DATA).unwrap();
-    assert_eq!(dema.value(), 109.46762588466589);
+    assert_eq!(dema.value(), 109.46762588466589)
 }
 
 #[test]
@@ -64,5 +64,5 @@ fn next_dema() {
     use tatk::test_data::TEST_DATA;
 
     let mut dema = DEMA::new(14, TEST_DATA).unwrap();
-    assert_eq!(dema.next(107.000000), 108.91612556961066);
+    assert_eq!(dema.next(107.000000), 108.91612556961066)
 }

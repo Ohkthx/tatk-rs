@@ -12,7 +12,7 @@
 //! * `y` = [EMA(EMA(n))] EMA of EMA(n)
 //! * `n` = period
 use super::EMA;
-use crate::error::TAError;
+use crate::{error::TAError, Num};
 
 /// Double Exponential Moving Average (DEMA)
 ///
@@ -32,7 +32,7 @@ pub struct DEMA {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// DEMA's current value.
-    value: f64,
+    value: Num,
     /// EMA(n), EMA of values / samples provided.
     ema_n: EMA,
     /// EMA(EMA(n)), EMA of EMA(n).
@@ -46,7 +46,7 @@ impl DEMA {
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the DEMA from.
-    pub fn new(period: usize, data: &[f64]) -> Result<Self, TAError> {
+    pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
         if data.len() < (period * 2) - 1 {
             return Err(TAError::InvalidArray);
         }
@@ -58,7 +58,7 @@ impl DEMA {
         };
 
         // EMA(n), build it manually because we need to catch the output.
-        let mut emas: Vec<f64> = vec![ema1.value()];
+        let mut emas: Vec<Num> = vec![ema1.value()];
         for n in period..data.len() {
             emas.push(ema1.next(data[n].clone()))
         }
@@ -83,7 +83,7 @@ impl DEMA {
     }
 
     /// Current and most recent value calculated.
-    pub fn value(&self) -> f64 {
+    pub fn value(&self) -> Num {
         self.value
     }
 
@@ -92,7 +92,7 @@ impl DEMA {
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: f64) -> f64 {
+    pub fn next(&mut self, value: Num) -> Num {
         let ema1 = self.ema_n.next(value);
         let ema2 = self.ema_ema_n.next(ema1);
 

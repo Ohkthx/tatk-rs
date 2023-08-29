@@ -12,7 +12,7 @@
 
 # TATK, Technical Analysis Toolkit
 
-The objective of this crate is analyzing signals and indicators of data.
+The objective of this crate is analyzing signals and indicators of data and providing additional tools for accurate analysis. There are several other wonderful crates that implement similar algorithms, however they did not meet my personal needs or had minor errors in their calculations.
 
 ```toml
 [dependencies]
@@ -20,8 +20,16 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
 ```
 
 ## Features
-
-- None.
+- **Moving Averages**
+  - Simple Moving Average (SMA)
+  - Exponential Moving Average (EMA)
+  - Double Exponential Moving Average (DEMA)
+- **Oscillators**
+  - Relative Strength Index (RSI)
+  - Moving Average Convergence and Divergence (MACD)
+- **Others**
+  - Variance (Var(X))
+  - Standard Deviation (SD/STDEV)
 
 ## Documentation
 
@@ -33,14 +41,14 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
 
 ## Examples
 
-- **Simple Moving Average (SMA)**: [simple_moving_average.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/simple_moving_average.rs)
-  - `cargo run --example simple_moving_average --all-features`
-- **Exponential Moving Average (EMA)**: [exponential_moving_average.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/exponential_moving_average.rs)
-  - `cargo run --example exponential_moving_average --all-features`
-- **Double Exponential Moving Average (DEMA)**: [double_exponential_moving_average.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/double_exponential_moving_average.rs)
-  - `cargo run --example double_exponential_moving_average --all-features`
-- **Moving Average Convergence Divergence (MACD)**: [moving_average_convergence_divergence.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/moving_average_convergence_divergence.rs)
-  - `cargo run --example moving_average_convergence_divergence --all-features`
+- **Simple Moving Average (SMA)**: [sma.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/sma.rs)
+  - `cargo run --example sma --all-features`
+- **Exponential Moving Average (EMA)**: [ema.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/ema.rs)
+  - `cargo run --example ema --all-features`
+- **Double Exponential Moving Average (DEMA)**: [dema.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/dema.rs)
+  - `cargo run --example dema --all-features`
+- **Moving Average Convergence Divergence (MACD)**: [macd.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/macd.rs)
+  - `cargo run --example macd --all-features`
 
 ## Tips Appreciated!
 

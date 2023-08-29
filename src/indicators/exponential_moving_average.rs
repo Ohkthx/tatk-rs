@@ -11,7 +11,7 @@
 //! * `k` = 2 * (n + 1)
 //! * `n` = period
 use super::SMA;
-use crate::error::TAError;
+use crate::{error::TAError, Num};
 
 /// Exponential Moving Average (EMA). More recent data is weighted heavier than older data.
 ///
@@ -29,7 +29,7 @@ pub struct EMA {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// Current value for the EMA.
-    value: f64,
+    value: Num,
     /// SMA for the same period
     sma: SMA,
 }
@@ -41,10 +41,10 @@ impl EMA {
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the EMA from.
-    pub fn new(period: usize, data: &[f64]) -> Result<Self, TAError> {
+    pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
         // Get the starting seed of data (SMA for the period at the beginning.)
         let end_idx = period - 1;
-        let mut last_ema: f64 = match SMA::calculate(period, 0, end_idx, data) {
+        let mut last_ema: Num = match SMA::calculate(period, 0, end_idx, data) {
             Ok(v) => v,
             Err(error) => return Err(error),
         };
@@ -72,7 +72,7 @@ impl EMA {
     }
 
     /// Current and most recent value calculated.
-    pub fn value(&self) -> f64 {
+    pub fn value(&self) -> Num {
         self.value
     }
 
@@ -91,7 +91,7 @@ impl EMA {
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: f64) -> f64 {
+    pub fn next(&mut self, value: Num) -> Num {
         // Progress the SMA by a value.
         self.sma.next(value);
 
@@ -107,8 +107,8 @@ impl EMA {
     /// * `period` - Size of the period / window used.
     /// * `last_ema` - Last EMA calculated.
     /// * `value` - Most recent value.
-    pub(crate) fn calculate(period: usize, last_ema: &f64, value: &f64) -> f64 {
-        let k = 2.0 / (period + 1) as f64;
+    pub(crate) fn calculate(period: usize, last_ema: &Num, value: &Num) -> Num {
+        let k = 2.0 / (period + 1) as Num;
         (value - last_ema) * k + last_ema
     }
 }

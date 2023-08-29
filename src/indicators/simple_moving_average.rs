@@ -2,7 +2,7 @@
 //!
 //! Average moves within a period.
 use crate::buffer::Buffer;
-use crate::error::TAError;
+use crate::{error::TAError, Num};
 
 /// Simple Moving Average (SMA), the average within a period that moves as data is added.
 #[derive(Debug)]
@@ -10,11 +10,9 @@ pub struct SMA {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// SMA's current value.
-    value: f64,
-    /// Total sum of the buffer.
-    sum: f64,
+    value: Num,
     /// Holds all of the current period's values.
-    buffer: Buffer<f64>,
+    buffer: Buffer,
 }
 
 impl SMA {
@@ -24,7 +22,7 @@ impl SMA {
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the SMA from.
-    pub fn new(period: usize, data: &[f64]) -> Result<Self, TAError> {
+    pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
         let start_idx = data.len() - period;
         let end_idx = data.len() - 1;
 
@@ -35,7 +33,7 @@ impl SMA {
         };
 
         // Build the buffer from the data provided.
-        let buffer: Buffer<f64> = match Buffer::from_array(period, data) {
+        let buffer: Buffer = match Buffer::from_array(period, data) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -43,7 +41,6 @@ impl SMA {
         Ok(Self {
             period,
             value: sma,
-            sum: buffer.queue().iter().sum::<f64>(),
             buffer,
         })
     }
@@ -54,8 +51,13 @@ impl SMA {
     }
 
     /// Current and most recent value calculated.
-    pub fn value(&self) -> f64 {
+    pub fn value(&self) -> Num {
         self.value
+    }
+
+    /// Obtains the total sum of the buffer for SMA.
+    pub(crate) fn sum(&self) -> Num {
+        self.buffer.sum()
     }
 
     /// Supply an additional value to recalculate a new SMA.
@@ -63,12 +65,12 @@ impl SMA {
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: f64) -> f64 {
+    pub fn next(&mut self, value: Num) -> Num {
         // Rotate the buffer.
-        let last_value = self.buffer.shift(value);
+        self.buffer.shift(value);
 
         // Calculate the new SMA.
-        self.value = (self.sum - last_value + value) / self.period as f64;
+        self.value = self.sum() / self.period as Num;
         self.value
     }
 
@@ -84,8 +86,8 @@ impl SMA {
         period: usize,
         start_idx: usize,
         end_idx: usize,
-        data: &[f64],
-    ) -> Result<f64, TAError> {
+        data: &[Num],
+    ) -> Result<Num, TAError> {
         if period == 0 {
             // Period cannot be 0.
             return Err(TAError::InvalidPeriod);
@@ -100,7 +102,7 @@ impl SMA {
             return Err(TAError::InvalidPeriod);
         }
 
-        let values_sum: f64 = data[start_idx..=end_idx].iter().sum();
-        Ok(values_sum / period as f64)
+        let values_sum: Num = data[start_idx..=end_idx].iter().sum();
+        Ok(values_sum / period as Num)
     }
 }

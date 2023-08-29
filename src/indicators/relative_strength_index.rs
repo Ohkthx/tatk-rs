@@ -13,7 +13,7 @@
 //! * `z` = Period - 1.
 //! * `x1` = Most recent gain.
 //! * `y1` = Most recent loss.
-use crate::error::TAError;
+use crate::{error::TAError, Num};
 
 /// Relative Strength Index (RSI)
 ///
@@ -35,17 +35,17 @@ pub struct RSI {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// RSI's current value.
-    value: f64,
+    value: Num,
     /// Average gain percentage.
-    gain_avg: f64,
+    gain_avg: Num,
     /// Average loss percentage.
-    loss_avg: f64,
+    loss_avg: Num,
     /// Last value processed.
-    last: f64,
+    last: Num,
     /// Oversold threshold.
-    oversold: f64,
+    oversold: Num,
     /// Overbought threshold.
-    overbought: f64,
+    overbought: Num,
 }
 
 impl RSI {
@@ -55,16 +55,16 @@ impl RSI {
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the RSI from.
-    pub fn new(period: usize, data: &[f64]) -> Result<Self, TAError> {
+    pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
         if period + 1 > data.len() {
             return Err(TAError::InvalidArray);
         } else if period == 0 {
             return Err(TAError::InvalidPeriod);
         }
 
-        let mut gains: f64 = 0.0;
-        let mut losses: f64 = 0.0;
-        let mut last: f64 = data[0].clone();
+        let mut gains: Num = 0.0;
+        let mut losses: Num = 0.0;
+        let mut last: Num = data[0].clone();
 
         // Generates the gains / losses for the first period of values. Unique and uses all gains /
         // losses for the first period as a seed value.
@@ -79,8 +79,8 @@ impl RSI {
         }
 
         // These values will be updated by calculate, used to calculate period + 1.
-        let mut last_gain: f64 = 0.0;
-        let mut last_loss: f64 = 0.0;
+        let mut last_gain: Num = 0.0;
+        let mut last_loss: Num = 0.0;
         let mut value = Self::calculate(period, &mut last_gain, &mut last_loss, gains, losses);
 
         // Calculate remaining values. This uses the average + next value. It's a slightly
@@ -119,17 +119,17 @@ impl RSI {
     }
 
     /// Current and most recent value calculated.
-    pub fn value(&self) -> f64 {
+    pub fn value(&self) -> Num {
         self.value
     }
 
     /// Changes the Oversold Threshold from the default (20.0)
-    pub fn set_oversold(&mut self, oversold_value: f64) {
+    pub fn set_oversold(&mut self, oversold_value: Num) {
         self.oversold = oversold_value;
     }
 
     /// Changes the Overbought Threshold from the default (80.0)
-    pub fn set_overbought(&mut self, overbought_value: f64) {
+    pub fn set_overbought(&mut self, overbought_value: Num) {
         self.overbought = overbought_value;
     }
 
@@ -148,7 +148,7 @@ impl RSI {
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: f64) -> f64 {
+    pub fn next(&mut self, value: Num) -> Num {
         let mut gain = 0.0;
         let mut loss = 0.0;
         let change = value - self.last;
@@ -182,16 +182,16 @@ impl RSI {
     /// * `loss` - Most recent loss (>= 0).
     pub(crate) fn calculate(
         period: usize,
-        gain_avg: &mut f64,
-        loss_avg: &mut f64,
-        gain: f64,
-        loss: f64,
-    ) -> f64 {
-        let period_value = (period as f64) - 1.0;
+        gain_avg: &mut Num,
+        loss_avg: &mut Num,
+        gain: Num,
+        loss: Num,
+    ) -> Num {
+        let period_value = (period as Num) - 1.0;
 
         // Update the callers gain and loss averages.
-        *gain_avg = (*gain_avg * period_value + gain) / period as f64;
-        *loss_avg = (*loss_avg * period_value + loss) / period as f64;
+        *gain_avg = (*gain_avg * period_value + gain) / period as Num;
+        *loss_avg = (*loss_avg * period_value + loss) / period as Num;
 
         100.0 - (100.0 / (1.0 + (*gain_avg / *loss_avg)))
     }

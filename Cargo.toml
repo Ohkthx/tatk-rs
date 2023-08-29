@@ -1,7 +1,7 @@
 [package]
 name = "tatk"
 license = "MIT"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 description = "Technical Analysis Toolkit"
 readme = "README.md"
@@ -13,33 +13,30 @@ include = ["*/**/***.rs"]
 [features]
 default = []
 full = ["test-data"]
+f32 = []
 test-data = []
 
 [[example]]
-name = "simple_moving_average"
-path = "examples/simple_moving_average.rs"
+name = "sma"
+path = "examples/sma.rs"
 required-features = ["test-data"]
 
 [[example]]
-name = "exponential_moving_average"
-path = "examples/exponential_moving_average.rs"
+name = "ema"
+path = "examples/ema.rs"
 required-features = ["test-data"]
 
 [[example]]
-name = "double_exponential_moving_average"
-path = "examples/double_exponential_moving_average.rs"
+name = "dema"
+path = "examples/dema.rs"
 required-features = ["test-data"]
 
 [[example]]
-name = "moving_average_convergence_divergence"
-path = "examples/moving_average_convergence_divergence.rs"
+name = "macd"
+path = "examples/macd.rs"
 required-features = ["test-data"]
 
 [[example]]
-name = "relative_strength_index"
-path = "examples/relative_strength_index.rs"
+name = "rsi"
+path = "examples/rsi.rs"
 required-features = ["test-data"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]

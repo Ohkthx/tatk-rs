@@ -11,7 +11,7 @@
 //! * `x` = Short EMA of period `n`
 //! * `y` = Long EMA of period `n`
 use super::EMA;
-use crate::error::TAError;
+use crate::{error::TAError, Num};
 
 /// Moving Average Convergence and Divergence (MACD)
 ///
@@ -28,7 +28,7 @@ use crate::error::TAError;
 #[derive(Debug)]
 pub struct MACD {
     /// MACD's current value.
-    value: f64,
+    value: Num,
     /// Short EMA
     ema_short: EMA,
     /// Long EMA
@@ -49,7 +49,7 @@ impl MACD {
     /// * `long` - Period of the long EMA.
     /// * `signal` - Period of the signal EMA.
     /// * `data` - Array of values to create the MACD from.
-    pub fn new(short: usize, long: usize, signal: usize, data: &[f64]) -> Result<Self, TAError> {
+    pub fn new(short: usize, long: usize, signal: usize, data: &[Num]) -> Result<Self, TAError> {
         if short > long {
             return Err(TAError::InvalidLine("long".to_string()));
         } else if data.len() < short {
@@ -71,7 +71,7 @@ impl MACD {
         };
 
         // Add the first value.
-        let mut signals: Vec<f64> = vec![ema_short.value() - ema_long.value()];
+        let mut signals: Vec<Num> = vec![ema_short.value() - ema_long.value()];
 
         // Process the remainder of the data, building a signal line.
         for n in long..data.len() {
@@ -97,12 +97,12 @@ impl MACD {
     }
 
     /// Current and most recent value calculated.
-    pub fn value(&self) -> f64 {
+    pub fn value(&self) -> Num {
         self.value
     }
 
     /// Current and most recent signal value calculated.
-    pub fn signal_value(&self) -> f64 {
+    pub fn signal_value(&self) -> Num {
         self.ema_signal.value()
     }
 
@@ -126,7 +126,7 @@ impl MACD {
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: f64) -> f64 {
+    pub fn next(&mut self, value: Num) -> Num {
         let was_below: bool = self.is_below();
 
         let short_value = self.ema_short.next(value);
