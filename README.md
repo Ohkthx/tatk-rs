@@ -33,7 +33,7 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
 
 ## Documentation
 
-- None.
+Most of the documentation can be accessed by clicking the following link: [docs.rs](https://docs.rs/tatk/latest/tatk/). That documentation is automatically generated and also accessible from [crates.io](https://crates.io/crates/tatk).
 
 ### TODO
 
