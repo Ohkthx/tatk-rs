@@ -1,8 +1,8 @@
 //! Simple Moving Average (SMA)
 //!
 //! Average moves within a period.
-use crate::buffer::Buffer;
-use crate::{error::TAError, Num};
+use crate::traits::{Line, Stats};
+use crate::{Buffer, Num, TAError};
 
 /// Simple Moving Average (SMA), the average within a period that moves as data is added.
 #[derive(Debug)]
@@ -18,19 +18,19 @@ pub struct SMA {
 impl SMA {
     /// Creates a new SMA with the supplied period and initial data.
     ///
+    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    ///
     /// # Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the SMA from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        let start_idx = data.len() - period;
-        let end_idx = data.len() - 1;
-
-        // Calculate the SMA of the last period of the data.
-        let sma = match Self::calculate(period, start_idx, end_idx, data) {
-            Ok(v) => v,
-            Err(error) => return Err(error),
-        };
+        // Prevents out-of-bounds access.
+        if data.len() < period {
+            return Err(TAError::InvalidData(String::from(
+                "not enough data for period provided",
+            )));
+        }
 
         // Build the buffer from the data provided.
         let buffer: Buffer = match Buffer::from_array(period, data) {
@@ -40,24 +40,21 @@ impl SMA {
 
         Ok(Self {
             period,
-            value: sma,
+            value: buffer.mean(),
             buffer,
         })
     }
+}
 
+impl Line for SMA {
     /// Period (window) for the samples.
-    pub fn period(&self) -> usize {
+    fn period(&self) -> usize {
         self.period
     }
 
     /// Current and most recent value calculated.
-    pub fn value(&self) -> Num {
+    fn value(&self) -> Num {
         self.value
-    }
-
-    /// Obtains the total sum of the buffer for SMA.
-    pub(crate) fn sum(&self) -> Num {
-        self.buffer.sum()
     }
 
     /// Supply an additional value to recalculate a new SMA.
@@ -65,44 +62,42 @@ impl SMA {
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Num {
         // Rotate the buffer.
         self.buffer.shift(value);
 
         // Calculate the new SMA.
-        self.value = self.sum() / self.period as Num;
+        self.value = self.sum() / self.period() as Num;
         self.value
     }
+}
 
-    /// Calculates a SMA with the given data between two indexes.
+impl Stats for SMA {
+    /// Obtains the total sum of the buffer for SMA.
+    fn sum(&self) -> Num {
+        self.buffer.sum()
+    }
+
+    /// Mean for the period of the SMA.
+    fn mean(&self) -> Num {
+        self.buffer.mean()
+    }
+
+    /// Current variance for the period.
     ///
     /// # Arguments
     ///
-    /// * `period` - Size of the period / window used.
-    /// * `start_idx` - Starting index to begin calculations.
-    /// * `end_idx` - Ending index to stop calculations.
-    /// * `data` - Array of values to create the SMA from.
-    pub(crate) fn calculate(
-        period: usize,
-        start_idx: usize,
-        end_idx: usize,
-        data: &[Num],
-    ) -> Result<Num, TAError> {
-        if period == 0 {
-            // Period cannot be 0.
-            return Err(TAError::InvalidPeriod);
-        } else if start_idx > end_idx {
-            // Starting index must be less than ending index.
-            return Err(TAError::InvalidIndex(start_idx, end_idx));
-        } else if data.len() < end_idx {
-            // Prevents out-of-bounds access.
-            return Err(TAError::InvalidArray);
-        } else if end_idx - start_idx != period - 1 {
-            // Ensures the correct period is being used with the indexes.
-            return Err(TAError::InvalidPeriod);
-        }
+    /// * `is_sample` - If the data is a Sample or Population, default should be True.
+    fn variance(&self, is_sample: bool) -> Num {
+        self.buffer.variance(is_sample)
+    }
 
-        let values_sum: Num = data[start_idx..=end_idx].iter().sum();
-        Ok(values_sum / period as Num)
+    /// Current standard deviation for the period.
+    ///
+    /// # Arguments
+    ///
+    /// * `is_sample` - If the data is a Sample or Population, default should be True.
+    fn stdev(&self, is_sample: bool) -> Num {
+        self.buffer.stdev(is_sample)
     }
 }

@@ -12,8 +12,8 @@
 //! * `x` is the current value in a set.
 //! * `μ` is the mean of the set.
 //! * `∑` is the sum.
-use crate::buffer::Buffer;
-use crate::{error::TAError, Num};
+use crate::traits::Line;
+use crate::{Buffer, Num, TAError};
 
 /// Standard Deviation (SD/STDEV)
 ///
@@ -44,12 +44,21 @@ pub struct STDEV {
 impl STDEV {
     /// Creates a new standard deviation with the supplied period and initial data.
     ///
+    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    ///
     /// # Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the STDEV from.
     /// * `is_sample` - If the data is a Sample or Population, default should be True.
     pub fn new(period: usize, data: &[Num], is_sample: bool) -> Result<Self, TAError> {
+        // Make sure we have enough data.
+        if data.len() < period {
+            return Err(TAError::InvalidData(String::from(
+                "not enough data for period provided",
+            )));
+        }
+
         // Build the buffer from the data provided.
         let buffer: Buffer = match Buffer::from_array(period, data) {
             Ok(value) => value,
@@ -64,13 +73,20 @@ impl STDEV {
         })
     }
 
+    /// Indicates either sample or population being used.
+    pub fn is_sample(&self) -> bool {
+        self.is_sample
+    }
+}
+
+impl Line for STDEV {
     /// Period (window) for the samples.
-    pub fn period(&self) -> usize {
+    fn period(&self) -> usize {
         self.period
     }
 
     /// Current and most recent value calculated.
-    pub fn value(&self) -> Num {
+    fn value(&self) -> Num {
         self.value
     }
 
@@ -79,12 +95,12 @@ impl STDEV {
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Num {
         // Rotate the buffer.
         self.buffer.shift(value);
 
         // Calculate the new STDEV.
-        self.value = self.buffer.stdev(self.is_sample);
+        self.value = self.buffer.stdev(self.is_sample());
         self.value
     }
 }

@@ -8,6 +8,15 @@
     <a href="https://github.com/Ohkthx/tatk-rs#tips-appreciated" title="Donate with BNB (Binance)!">
         <img src="https://img.shields.io/badge/donate-black?style=for-the-badge&logo=binance&logoColor=f9e2af&label=BINANCE&labelColor=11111b&color=f9e2af"
             alt="Donate with BNB!"></a>
+<br>
+    <a href="https://crates.io/crates/tatk" title="crates.io version.">
+        <img src="https://img.shields.io/crates/v/tatk?style=for-the-badge&logoColor=89b4fa&labelColor=11111b&color=89b4fa"
+            alt="crates.io version"></a>
+    <a href="https://crates.io/crates/tatk" title="crates.io download counter.">
+        <img src="https://img.shields.io/crates/d/tatk?style=for-the-badge&logoColor=89dceb&labelColor=11111b&color=89dceb"
+            alt="crates.io downloads"></a>
+    <a href="https://github.com/ohkthx/tatk-rs" title="Size of the repo!">
+        <img src="https://img.shields.io/github/repo-size/Ohkthx/tatk-rs?style=for-the-badge&logoColor=a6e3a1&labelColor=11111b&color=a6e3a1"
 </p>
 
 # TATK, Technical Analysis Toolkit
@@ -26,10 +35,12 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
   - Double Exponential Moving Average (DEMA)
 - **Oscillators**
   - Relative Strength Index (RSI)
+  - Bollinger Bands (BBands)
   - Moving Average Convergence and Divergence (MACD)
 - **Others**
   - Variance (Var(X))
   - Standard Deviation (SD/STDEV)
+  - Cross, checks two lines for Golden or Death cross.
 
 ## Documentation
 

@@ -11,8 +11,6 @@ pub struct Buffer {
     capacity: usize,
     /// Data the buffer current holds.
     data: Vec<Num>,
-    /// 0 if the buffer is full, >0 otherwise.
-    full: usize,
     /// Sum of the buffer
     sum: Num,
 }
@@ -29,21 +27,18 @@ impl Buffer {
     /// * `data` - Array of data to fill with. Newest -> Oldest.
     pub fn from_array(capacity: usize, data: &[Num]) -> Result<Self, TAError> {
         if capacity == 0 {
-            return Err(TAError::InvalidPeriod);
+            return Err(TAError::InvalidSize(String::from("capacity cannot be 0")));
+        } else if data.len() == 0 {
+            return Err(TAError::InvalidData(String::from("no data provided")));
         }
 
-        let mut vec: Vec<Num>;
-        let full: usize;
-
+        let vec: Vec<Num>;
         if data.len() >= capacity {
-            // Full vector, mark as full (0).
+            // Place the last `capacity` elements into the buffer.
             vec = data[(data.len() - capacity)..].to_vec();
-            full = 0;
         } else {
-            // Pad out the vector and mark it as not full.
-            vec = vec![Default::default(); capacity - data.len()];
-            vec.extend_from_slice(data);
-            full = capacity - data.len();
+            // Partially fill the vector.
+            vec = data.to_vec();
         }
 
         let sum = vec.iter().sum();
@@ -51,7 +46,6 @@ impl Buffer {
         Ok(Self {
             capacity,
             data: vec,
-            full,
             sum,
         })
     }
@@ -61,9 +55,9 @@ impl Buffer {
         self.capacity
     }
 
-    /// Checks if the buffer is ready meaning there is full data and no remaining padding.
+    /// Checks if the buffer is ready indicating it has data to meet its capacity.
     pub fn is_ready(&self) -> bool {
-        self.full == 0
+        self.data.len() >= self.capacity()
     }
 
     /// Gets the oldest value in the buffer, this is the next value that will be removed.
@@ -89,12 +83,21 @@ impl Buffer {
     ///
     /// * `value` - New (newest) value to add to the buffer.
     pub fn shift(&mut self, value: Num) -> Num {
-        if self.full > 0 {
-            self.full = self.full - 1;
+        let mut oldest = 0.0;
+        if self.is_ready() {
+            // Extract the oldest value to remove from the sum.
+            oldest = self.data.remove(0usize);
         }
-        let oldest = self.data.remove(0usize);
-        self.sum = self.sum - oldest + value;
+
+        self.sum = self.sum() - oldest + value;
         self.data.push(value);
+
+        // Resize, trimming oldest if extends past capacity.
+        if self.data.len() > self.capacity() {
+            oldest = self.data[self.data.len() - self.capacity() - 1].clone();
+            self.data.drain(..(self.data.len() - self.capacity()));
+        }
+
         oldest
     }
 

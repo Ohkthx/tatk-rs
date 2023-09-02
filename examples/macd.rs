@@ -1,6 +1,7 @@
 //! Demonstrates how to initialize and use a MACD.
 use tatk::indicators::MACD;
 use tatk::test_data::TEST_DATA;
+use tatk::traits::Line;
 
 // const TEST_DATA: &[f64] = &[
 //     11.13, 11.3, 11.59, 11.71, 11.8, 11.8, 12.07, 12.14, 12.04, 12.02, 12.34, 12.61, 12.59, 12.66,

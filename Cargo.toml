@@ -1,7 +1,7 @@
 [package]
 name = "tatk"
 license = "MIT"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Technical Analysis Toolkit"
 readme = "README.md"
@@ -39,4 +39,9 @@ required-features = ["test-data"]
 [[example]]
 name = "rsi"
 path = "examples/rsi.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "bbands"
+path = "examples/bbands.rs"
 required-features = ["test-data"]

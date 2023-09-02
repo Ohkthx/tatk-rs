@@ -13,7 +13,8 @@
 //! * `z` = Period - 1.
 //! * `x1` = Most recent gain.
 //! * `y1` = Most recent loss.
-use crate::{error::TAError, Num};
+use crate::traits::{Line, Stats};
+use crate::{Buffer, Num, TAError};
 
 /// Relative Strength Index (RSI)
 ///
@@ -41,15 +42,19 @@ pub struct RSI {
     /// Average loss percentage.
     loss_avg: Num,
     /// Last value processed.
-    last: Num,
+    last_data_value: Num,
     /// Oversold threshold.
     oversold: Num,
     /// Overbought threshold.
     overbought: Num,
+    /// Holds `period` amount of generated EMAs.
+    buffer: Buffer,
 }
 
 impl RSI {
     /// Creates a new RSI with the supplied period and initial data.
+    ///
+    /// Required: The initial data must be at least of equal size/length or greater than the period.
     ///
     /// # Arguments
     ///
@@ -57,20 +62,22 @@ impl RSI {
     /// * `data` - Array of values to create the RSI from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
         if period + 1 > data.len() {
-            return Err(TAError::InvalidArray);
+            return Err(TAError::InvalidData(String::from(
+                "not enough data for period",
+            )));
         } else if period == 0 {
-            return Err(TAError::InvalidPeriod);
+            return Err(TAError::InvalidSize(String::from("period cannot be 0")));
         }
 
         let mut gains: Num = 0.0;
         let mut losses: Num = 0.0;
-        let mut last: Num = data[0].clone();
+        let mut last_data_value: Num = data[0].clone();
 
         // Generates the gains / losses for the first period of values. Unique and uses all gains /
         // losses for the first period as a seed value.
         for value in data[1..=period].iter() {
-            let change = value - last;
-            last = value.clone();
+            let change = value - last_data_value;
+            last_data_value = value.clone();
             if change > 0.0 {
                 gains = gains + change;
             } else {
@@ -83,11 +90,17 @@ impl RSI {
         let mut last_loss: Num = 0.0;
         let mut value = Self::calculate(period, &mut last_gain, &mut last_loss, gains, losses);
 
+        // Buffer will old processed RSIs
+        let mut buffer = match Buffer::from_array(period, &[value]) {
+            Ok(v) => v,
+            Err(error) => return Err(error),
+        };
+
         // Calculate remaining values. This uses the average + next value. It's a slightly
         // different calculation than the initial seed value for the RSI.
         if period < data.len() {
             for v in &data[(period + 1)..] {
-                let change = v - last;
+                let change = v - last_data_value;
                 let mut gain = 0.0;
                 let mut loss = 0.0;
 
@@ -98,7 +111,8 @@ impl RSI {
                 }
 
                 value = Self::calculate(period, &mut last_gain, &mut last_loss, gain, loss);
-                last = v.clone();
+                buffer.shift(value);
+                last_data_value = v.clone();
             }
         }
 
@@ -107,20 +121,11 @@ impl RSI {
             value,
             gain_avg: last_gain,
             loss_avg: last_loss,
-            last,
+            last_data_value,
             oversold: 20.0,
             overbought: 80.0,
+            buffer,
         })
-    }
-
-    /// Period (window) for the samples.
-    pub fn period(&self) -> usize {
-        self.period
-    }
-
-    /// Current and most recent value calculated.
-    pub fn value(&self) -> Num {
-        self.value
     }
 
     /// Changes the Oversold Threshold from the default (20.0)
@@ -135,40 +140,17 @@ impl RSI {
 
     /// Checks if the RSI is currently within the oversold threshold (default 20.0)
     pub fn is_oversold(&self) -> bool {
-        self.value < self.oversold
+        self.value() < self.oversold
     }
 
     /// Checks if the RSI is currently within the overbought threshold (default 80.0)
     pub fn is_overbought(&self) -> bool {
-        self.value > self.overbought
+        self.value() > self.overbought
     }
 
-    /// Supply an additional value to recalculate a new RSI.
-    ///
-    /// # Arguments
-    ///
-    /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: Num) -> Num {
-        let mut gain = 0.0;
-        let mut loss = 0.0;
-        let change = value - self.last;
-
-        if change > 0.0 {
-            gain = change;
-        } else {
-            loss = change.abs();
-        }
-
-        // Calculate the new RSI.
-        self.last = value;
-        self.value = Self::calculate(
-            self.period,
-            &mut self.gain_avg,
-            &mut self.loss_avg,
-            gain,
-            loss,
-        );
-        self.value
+    /// Last value the RSI processed.
+    fn last_data_value(&self) -> Num {
+        self.last_data_value
     }
 
     /// Calculates a RSI with the given data between two indexes.
@@ -194,5 +176,75 @@ impl RSI {
         *loss_avg = (*loss_avg * period_value + loss) / period as Num;
 
         100.0 - (100.0 / (1.0 + (*gain_avg / *loss_avg)))
+    }
+}
+
+impl Line for RSI {
+    /// Period (window) for the samples.
+    fn period(&self) -> usize {
+        self.period
+    }
+
+    /// Current and most recent value calculated.
+    fn value(&self) -> Num {
+        self.value
+    }
+
+    /// Supply an additional value to recalculate a new RSI.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: Num) -> Num {
+        let mut gain = 0.0;
+        let mut loss = 0.0;
+        let change = value - self.last_data_value();
+
+        if change > 0.0 {
+            gain = change;
+        } else {
+            loss = change.abs();
+        }
+
+        // Calculate the new RSI.
+        self.last_data_value = value;
+        self.value = Self::calculate(
+            self.period(),
+            &mut self.gain_avg,
+            &mut self.loss_avg,
+            gain,
+            loss,
+        );
+        self.value
+    }
+}
+
+impl Stats for RSI {
+    /// Obtains the total sum of the buffer for RSI.
+    fn sum(&self) -> Num {
+        self.buffer.sum()
+    }
+
+    /// Mean for the period of the EMA.
+    fn mean(&self) -> Num {
+        self.buffer.mean()
+    }
+
+    /// Current variance for the period.
+    ///
+    /// # Arguments
+    ///
+    /// * `is_sample` - If the data is a Sample or Population, default should be True.
+    fn variance(&self, is_sample: bool) -> Num {
+        self.buffer.variance(is_sample)
+    }
+
+    /// Current standard deviation for the period.
+    ///
+    /// # Arguments
+    ///
+    /// * `is_sample` - If the data is a Sample or Population, default should be True.
+    fn stdev(&self, is_sample: bool) -> Num {
+        self.buffer.stdev(is_sample)
     }
 }

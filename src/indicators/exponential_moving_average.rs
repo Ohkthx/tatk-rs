@@ -10,8 +10,8 @@
 //! * `y` = last EMA
 //! * `k` = 2 * (n + 1)
 //! * `n` = period
-use super::SMA;
-use crate::{error::TAError, Num};
+use crate::traits::{Line, Stats};
+use crate::{Buffer, Num, TAError};
 
 /// Exponential Moving Average (EMA). More recent data is weighted heavier than older data.
 ///
@@ -30,74 +30,61 @@ pub struct EMA {
     period: usize,
     /// Current value for the EMA.
     value: Num,
-    /// SMA for the same period
-    sma: SMA,
+    /// Holds `period` amount of generated EMAs.
+    buffer: Buffer,
+    /// Smoothing value.
+    k: Num,
 }
 
 impl EMA {
     /// Creates a new EMA with the supplied period and initial data.
+    ///
+    /// Required: The initial data must be at least of equal size/length or greater than the period.
     ///
     /// # Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the EMA from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Get the starting seed of data (SMA for the period at the beginning.)
-        let end_idx = period - 1;
-        let mut last_ema: Num = match SMA::calculate(period, 0, end_idx, data) {
-            Ok(v) => v,
-            Err(error) => return Err(error),
-        };
-
-        // Calculate the remainder of the datas EMA, using the prior EMA.
-        for value in data[end_idx + 1..].iter() {
-            last_ema = Self::calculate(period, &last_ema, value);
+        // Make sure we have enough data.
+        if data.len() < period {
+            return Err(TAError::InvalidData(String::from(
+                "not enough data for period provided",
+            )));
         }
 
-        let sma: SMA = match SMA::new(period, data) {
+        // Temporary buffer to get seed SMA for EMA.
+        let mut last_ema = match Buffer::from_array(period, &data[..period]) {
+            Ok(v) => v.mean(),
+            Err(error) => return Err(error),
+        };
+
+        // Buffer will hold last `period` EMAs.
+        let mut buffer = match Buffer::from_array(period, &[last_ema]) {
             Ok(v) => v,
             Err(error) => return Err(error),
         };
+
+        // Smoothing factor.
+        let k: Num = 2.0 / (period + 1) as Num;
+
+        // Calculate the remainder of the datas EMA, using the prior EMA.
+        for value in data[period..].iter() {
+            last_ema = Self::calculate(&k, &last_ema, value);
+            buffer.shift(last_ema);
+        }
 
         Ok(Self {
             period,
             value: last_ema,
-            sma,
+            buffer,
+            k,
         })
     }
 
-    /// Period (window) for the samples.
-    pub fn period(&self) -> usize {
-        self.period
-    }
-
-    /// Current and most recent value calculated.
-    pub fn value(&self) -> Num {
-        self.value
-    }
-
-    /// Returns true if the EMA is above an SMA of the same period.
-    pub fn is_above(&self) -> bool {
-        self.value > self.sma.value()
-    }
-
-    /// Returns true if the EMA is below an SMA of the same period.
-    pub fn is_below(&self) -> bool {
-        self.value < self.sma.value()
-    }
-
-    /// Supply an additional value to recalculate a new EMA.
-    ///
-    /// # Arguments
-    ///
-    /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: Num) -> Num {
-        // Progress the SMA by a value.
-        self.sma.next(value);
-
-        // Get the next EMA value.
-        self.value = Self::calculate(self.period, &self.value, &value);
-        self.value
+    /// Smoothing factor.
+    fn k(&self) -> &Num {
+        &self.k
     }
 
     /// Calculates an EMA with newly provided data and the last EMA..
@@ -107,8 +94,61 @@ impl EMA {
     /// * `period` - Size of the period / window used.
     /// * `last_ema` - Last EMA calculated.
     /// * `value` - Most recent value.
-    pub(crate) fn calculate(period: usize, last_ema: &Num, value: &Num) -> Num {
-        let k = 2.0 / (period + 1) as Num;
+    fn calculate(k: &Num, last_ema: &Num, value: &Num) -> Num {
         (value - last_ema) * k + last_ema
+    }
+}
+
+impl Line for EMA {
+    /// Period (window) for the samples.
+    fn period(&self) -> usize {
+        self.period
+    }
+
+    /// Current and most recent value calculated.
+    fn value(&self) -> Num {
+        self.value
+    }
+
+    /// Supply an additional value to recalculate a new EMA.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: Num) -> Num {
+        // Get the next EMA value.
+        self.value = Self::calculate(self.k(), &self.value(), &value);
+        self.buffer.shift(self.value());
+        self.value
+    }
+}
+
+impl Stats for EMA {
+    /// Obtains the total sum of the buffer for EMA.
+    fn sum(&self) -> Num {
+        self.buffer.sum()
+    }
+
+    /// Mean for the period of the EMA.
+    fn mean(&self) -> Num {
+        self.buffer.mean()
+    }
+
+    /// Current variance for the period.
+    ///
+    /// # Arguments
+    ///
+    /// * `is_sample` - If the data is a Sample or Population, default should be True.
+    fn variance(&self, is_sample: bool) -> Num {
+        self.buffer.variance(is_sample)
+    }
+
+    /// Current standard deviation for the period.
+    ///
+    /// # Arguments
+    ///
+    /// * `is_sample` - If the data is a Sample or Population, default should be True.
+    fn stdev(&self, is_sample: bool) -> Num {
+        self.buffer.stdev(is_sample)
     }
 }

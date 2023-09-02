@@ -11,7 +11,8 @@
 //! * `x` = Short EMA of period `n`
 //! * `y` = Long EMA of period `n`
 use super::EMA;
-use crate::{error::TAError, Num};
+use crate::traits::Line;
+use crate::{Num, TAError};
 
 /// Moving Average Convergence and Divergence (MACD)
 ///
@@ -43,6 +44,9 @@ impl MACD {
     /// Creates a new MACD with the supplied period and initial data. Often the short line is
     /// period of 12, long is a period of 26, and signal is period of 9.
     ///
+    /// Required: The initial data must be at least of equal size/length or greater than the long
+    /// size.
+    ///
     /// # Arguments
     ///
     /// * `short` - Period of the short EMA.
@@ -51,11 +55,17 @@ impl MACD {
     /// * `data` - Array of values to create the MACD from.
     pub fn new(short: usize, long: usize, signal: usize, data: &[Num]) -> Result<Self, TAError> {
         if short > long {
-            return Err(TAError::InvalidLine("long".to_string()));
-        } else if data.len() < short {
-            return Err(TAError::InvalidLine("data".to_string()));
+            return Err(TAError::InvalidSize(String::from(
+                "short period longer than long period provided",
+            )));
         } else if data.len() < signal {
-            return Err(TAError::InvalidLine("data".to_string()));
+            return Err(TAError::InvalidSize(String::from(
+                "amount of data less than signal period provided",
+            )));
+        } else if data.len() < long {
+            return Err(TAError::InvalidSize(String::from(
+                "amount of data less than long period provided",
+            )));
         }
 
         // Build short EMA up to the long.
@@ -96,11 +106,6 @@ impl MACD {
         })
     }
 
-    /// Current and most recent value calculated.
-    pub fn value(&self) -> Num {
-        self.value
-    }
-
     /// Current and most recent signal value calculated.
     pub fn signal_value(&self) -> Num {
         self.ema_signal.value()
@@ -113,12 +118,24 @@ impl MACD {
 
     /// Returns true if the value is above the signal.
     pub fn is_above(&self) -> bool {
-        self.value > self.signal_value()
+        self.value() > self.signal_value()
     }
 
     /// Returns true if the value is below the signal.
     pub fn is_below(&self) -> bool {
-        self.value < self.signal_value()
+        self.value() < self.signal_value()
+    }
+}
+
+impl Line for MACD {
+    /// Period (window) for the signal.
+    fn period(&self) -> usize {
+        self.ema_signal.period()
+    }
+
+    /// Current and most recent value calculated.
+    fn value(&self) -> Num {
+        self.value
     }
 
     /// Supply an additional value to recalculate a new MACD.
@@ -126,7 +143,7 @@ impl MACD {
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    pub fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Num {
         let was_below: bool = self.is_below();
 
         let short_value = self.ema_short.next(value);
@@ -134,7 +151,7 @@ impl MACD {
 
         // Calculate the new MACD and signal.
         self.value = short_value - long_value;
-        self.ema_signal.next(self.value);
+        self.ema_signal.next(self.value());
 
         // Update if it crossed the signal or not.
         if was_below && self.is_below() {

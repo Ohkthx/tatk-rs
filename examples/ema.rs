@@ -1,6 +1,7 @@
 //! Demonstrates how to initialize and use a EMA.
 use tatk::indicators::EMA;
 use tatk::test_data::TEST_DATA;
+use tatk::traits::Line;
 
 fn main() {
     let period: usize = 10;
