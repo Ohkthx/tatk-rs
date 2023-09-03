@@ -60,6 +60,10 @@ Most of the documentation can be accessed by clicking the following link: [docs.
   - `cargo run --example dema --all-features`
 - **Moving Average Convergence Divergence (MACD)**: [macd.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/macd.rs)
   - `cargo run --example macd --all-features`
+- **Relative Strength Indicator (RSI)**: [rsi.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/rsi.rs)
+  - `cargo run --example rsi --all-features`
+- **Bollinger Bands (BBands)**: [bbands.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/bbands.rs)
+  - `cargo run --example bbands --all-features`
 
 ## Tips Appreciated!
 

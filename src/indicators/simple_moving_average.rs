@@ -25,7 +25,7 @@ impl SMA {
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the SMA from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Prevents out-of-bounds access.
+        // Make sure we have enough data.
         if data.len() < period {
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
