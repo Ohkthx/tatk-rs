@@ -1,7 +1,7 @@
 //! Simple Moving Average (SMA)
 //!
 //! Average moves within a period.
-use crate::traits::{Line, Stats};
+use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
 /// Simple Moving Average (SMA), the average within a period that moves as data is added.
@@ -46,29 +46,53 @@ impl SMA {
     }
 }
 
-impl Line for SMA {
+impl Period for SMA {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
+}
 
+impl Value for SMA {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
+}
+
+impl Next<Num> for SMA {
+    /// Next Value for the SMA.
+    type Output = Num;
 
     /// Supply an additional value to recalculate a new SMA.
     ///
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Self::Output {
         // Rotate the buffer.
         self.buffer.shift(value);
 
         // Calculate the new SMA.
         self.value = self.sum() / self.period() as Num;
         self.value
+    }
+}
+
+impl<T> Next<T> for SMA
+where
+    T: AsValue,
+{
+    /// Next Value for the SMA.
+    type Output = Num;
+
+    /// Supply an additional value to recalculate a new SMA.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: T) -> Self::Output {
+        self.next(value.as_value())
     }
 }
 

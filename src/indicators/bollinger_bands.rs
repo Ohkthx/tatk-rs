@@ -12,7 +12,7 @@
 //! * `σ` is the standard deviation of the period.
 //! * `d` is the distance from the SMA to calculate.
 use super::SMA;
-use crate::traits::{Line, Stats};
+use crate::traits::{Next, Period, Stats, Value};
 use crate::{Num, TAError};
 
 /// Bollinger Bands (BBands). More recent data is weighted heavier than older data.
@@ -31,7 +31,7 @@ use crate::{Num, TAError};
 #[derive(Debug)]
 pub struct BBands<L>
 where
-    L: Line + Stats,
+    L: Value + Period + Stats,
 {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -62,7 +62,7 @@ impl BBands<SMA> {
             Err(error) => return Err(error),
         };
 
-        let distance = distance.clone().abs();
+        let distance = distance.abs();
         let stdev = sma.stdev(true);
         let lower = sma.value() - (stdev * distance);
         let upper = sma.value() + (stdev * distance);
@@ -79,7 +79,7 @@ impl BBands<SMA> {
 
 impl<L> BBands<L>
 where
-    L: Line + Stats,
+    L: Value + Period + Stats,
 {
     /// Creates BBands using an alternative line, such as EMA.
     ///
@@ -88,7 +88,7 @@ where
     /// * `line` - `Line` to use as the middle value.
     /// * `distance` - Distance the bands (in standard deviations) from the SMA. default 2.0
     pub fn with_line(line: L, distance: Num) -> Result<BBands<L>, TAError> {
-        let distance = distance.clone().abs();
+        let distance = distance.abs();
         let stdev = line.stdev(true);
         let lower = line.value() - (stdev * distance);
         let upper = line.value() + (stdev * distance);
@@ -118,19 +118,32 @@ where
     }
 }
 
-impl<L> Line for BBands<L>
+impl<L> Period for BBands<L>
 where
-    L: Line + Stats,
+    L: Value + Period + Stats,
 {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
+}
 
+impl<L> Value for BBands<L>
+where
+    L: Value + Period + Stats,
+{
     /// Current and most recent SMA value calculated.
     fn value(&self) -> Num {
         self.line.value()
     }
+}
+
+impl<L> Next<Num> for BBands<L>
+where
+    L: Value + Period + Stats + Next<Num>,
+{
+    /// Lower, Signal, Upper,
+    type Output = (Num, <L as Next<Num>>::Output, Num);
 
     /// Supply an additional value to recalculate a new Bollinger Band, this returns the current
     /// SMA. Obtain the Upper and Lower bounds with `.upper()` and `.lower()`.
@@ -138,13 +151,13 @@ where
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Self::Output {
         // Progress the SMA by a value.
         let value = self.line.next(value);
 
         let stdev = self.line.stdev(true);
         self.lower = self.value() - (stdev * self.distance());
         self.upper = self.value() + (stdev * self.distance());
-        value
+        (self.lower, value, self.upper)
     }
 }

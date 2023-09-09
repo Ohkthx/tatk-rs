@@ -11,7 +11,7 @@
 //! * `x` = Short EMA of period `n`
 //! * `y` = Long EMA of period `n`
 use super::EMA;
-use crate::traits::Line;
+use crate::traits::{AsValue, Next, Period, Value};
 use crate::{Num, TAError};
 
 /// Moving Average Convergence and Divergence (MACD)
@@ -84,9 +84,9 @@ impl MACD {
         let mut signals: Vec<Num> = vec![ema_short.value() - ema_long.value()];
 
         // Process the remainder of the data, building a signal line.
-        for n in long..data.len() {
-            let short_value = ema_short.next(data[n].clone());
-            let long_value = ema_long.next(data[n].clone());
+        for v in data[long..].iter() {
+            let short_value = ema_short.next(*v);
+            let long_value = ema_long.next(*v);
 
             signals.push(short_value - long_value);
         }
@@ -127,23 +127,34 @@ impl MACD {
     }
 }
 
-impl Line for MACD {
+impl Period for MACD {
     /// Period (window) for the signal.
     fn period(&self) -> usize {
         self.ema_signal.period()
     }
+}
 
+impl Value for MACD {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
+}
+
+impl Next<Num> for MACD {
+    /// Signal, Short, and Long values,
+    type Output = (Num, Num, Num);
 
     /// Supply an additional value to recalculate a new MACD.
+    ///
+    /// # Returns
+    ///
+    /// * (`Signal`, `Short`, `Long`)
     ///
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Self::Output {
         let was_below: bool = self.is_below();
 
         let short_value = self.ema_short.next(value);
@@ -162,6 +173,27 @@ impl Line for MACD {
             self.crossed = true;
         }
 
-        self.value
+        (self.value, short_value, long_value)
+    }
+}
+
+impl<T> Next<T> for MACD
+where
+    T: AsValue,
+{
+    /// Signal, Short, and Long values,
+    type Output = (Num, Num, Num);
+
+    /// Supply an additional value to recalculate a new MACD.
+    ///
+    /// # Returns
+    ///
+    /// * (`Signal`, `Short`, `Long`)
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: T) -> Self::Output {
+        self.next(value.as_value())
     }
 }

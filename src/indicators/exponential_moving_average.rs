@@ -10,7 +10,7 @@
 //! * `y` = last EMA
 //! * `k` = 2 * (n + 1)
 //! * `n` = period
-use crate::traits::{Line, Stats};
+use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
 /// Exponential Moving Average (EMA). More recent data is weighted heavier than older data.
@@ -87,7 +87,7 @@ impl EMA {
         &self.k
     }
 
-    /// Calculates an EMA with newly provided data and the last EMA..
+    /// Calculates an EMA with newly provided data and the last EMA.
     ///
     /// # Arguments
     ///
@@ -99,27 +99,51 @@ impl EMA {
     }
 }
 
-impl Line for EMA {
+impl Period for EMA {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
+}
 
+impl Value for EMA {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
+}
+
+impl Next<Num> for EMA {
+    /// Next Value for the EMA.
+    type Output = Num;
 
     /// Supply an additional value to recalculate a new EMA.
     ///
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Self::Output {
         // Get the next EMA value.
         self.value = Self::calculate(self.k(), &self.value(), &value);
         self.buffer.shift(self.value());
         self.value
+    }
+}
+
+impl<T> Next<T> for EMA
+where
+    T: AsValue,
+{
+    /// Next Value for the EMA.
+    type Output = Num;
+
+    /// Supply an additional value to recalculate a new EMA.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: T) -> Self::Output {
+        self.next(value.as_value())
     }
 }
 

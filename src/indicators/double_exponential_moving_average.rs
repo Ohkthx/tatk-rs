@@ -12,7 +12,7 @@
 //! * `y` = \[EMA(EMA(n))\] EMA of EMA(n)
 //! * `n` = period
 use super::EMA;
-use crate::traits::{Line, Stats};
+use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
 /// Double Exponential Moving Average (DEMA)
@@ -67,8 +67,8 @@ impl DEMA {
 
         // n EMA(n), build it manually because we need to catch the output.
         let mut n_ema_n: Vec<Num> = vec![ema_n.value()];
-        for n in period..((period * 2) - 1) {
-            n_ema_n.push(ema_n.next(data[n].clone()))
+        for v in data[period..((period * 2) - 1)].iter() {
+            n_ema_n.push(ema_n.next(*v));
         }
 
         // EMA of EMA(n)
@@ -85,8 +85,8 @@ impl DEMA {
         };
 
         // Calculate the remainder data points.
-        for n in ((period * 2) - 1)..data.len() {
-            let eman: Num = ema_n.next(data[n].clone());
+        for v in data[((period * 2) - 1)..].iter() {
+            let eman: Num = ema_n.next(*v);
 
             // Calculate the new DEMA.
             value = (2.0 * eman) - ema_ema_n.next(eman);
@@ -103,29 +103,53 @@ impl DEMA {
     }
 }
 
-impl Line for DEMA {
+impl Period for DEMA {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
+}
 
+impl Value for DEMA {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
+}
+
+impl Next<Num> for DEMA {
+    /// Next Value for the DEMA.
+    type Output = Num;
 
     /// Supply an additional value to recalculate a new DEMA.
     ///
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Self::Output {
         let ema: Num = self.ema_n.next(value);
 
         // Calculate the new DEMA.
         self.value = (2.0 * ema) - self.ema_ema_n.next(ema);
         self.buffer.shift(self.value());
         self.value
+    }
+}
+
+impl<T> Next<T> for DEMA
+where
+    T: AsValue,
+{
+    /// Next Value for the DEMA.
+    type Output = Num;
+
+    /// Supply an additional value to recalculate a new DEMA.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: T) -> Self::Output {
+        self.next(value.as_value())
     }
 }
 

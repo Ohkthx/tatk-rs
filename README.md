@@ -33,37 +33,58 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
   - Simple Moving Average (SMA)
   - Exponential Moving Average (EMA)
   - Double Exponential Moving Average (DEMA)
+  - McGinley Dynamic Indicator (MD)
+  - On-Balance Volume (OBV)
 - **Oscillators**
   - Relative Strength Index (RSI)
-  - Bollinger Bands (BBands)
   - Moving Average Convergence and Divergence (MACD)
+  - Bollinger Bands (BBands)
+  - True Range (TR)
+  - Average True Range (ATR)
 - **Others**
   - Variance (Var(X))
   - Standard Deviation (SD/STDEV)
-  - Cross, checks two lines for Golden or Death cross.
+  - Cross (Cross), checks two lines for Golden or Death cross.
 
 ## Documentation
 
 Most of the documentation can be accessed by clicking the following link: [docs.rs](https://docs.rs/tatk/latest/tatk/). That documentation is automatically generated and also accessible from [crates.io](https://crates.io/crates/tatk).
 
-### TODO
+### Traits
 
-- Add additional indicators and test.
+The following traits are either used by the crate on indicators or to be defined by the user for additional functionality.
+
+- **Indicator**
+  - Stats - Basic statistics for the indicator such as: sum, mean, variance, and standard deviation.
+  - Period - Period of window of the data for the indicator.
+  - Value - Current value held by the indicator.
+  - Next - Add a new data point to the indicator to recalculate value.
+- **User Defined**
+  - AsValue - Alternative value that can be passed to an Indicators `Next`.
+  - Open - Opening value for the data type.
+  - Close - Closing value for the data type.
+  - Low - Lowest value for the data type.
+  - High - Highest value for the data type.
+  - Volume - Total volume for the data type.
+- **Others**
+  - HL2 - Average of the Highest and Lowest values, requires `High` and `Low` to be defined.
+  - HLC3 - Average of the Highest, Lowest, and Close values, requires `High`, `Low`, and `Close` to be defined.
+  - OHLC4 - Average of the Open, Highest, Lowest, and Close values, requires `Open`, `High`, `Low`, and `Close` to be defined.
 
 ## Examples
 
+Following examples can be ran with:  `cargo run --example short_id`
+
 - **Simple Moving Average (SMA)**: [sma.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/sma.rs)
-  - `cargo run --example sma --all-features`
 - **Exponential Moving Average (EMA)**: [ema.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/ema.rs)
-  - `cargo run --example ema --all-features`
 - **Double Exponential Moving Average (DEMA)**: [dema.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/dema.rs)
-  - `cargo run --example dema --all-features`
 - **Moving Average Convergence Divergence (MACD)**: [macd.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/macd.rs)
-  - `cargo run --example macd --all-features`
 - **Relative Strength Indicator (RSI)**: [rsi.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/rsi.rs)
-  - `cargo run --example rsi --all-features`
 - **Bollinger Bands (BBands)**: [bbands.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/bbands.rs)
-  - `cargo run --example bbands --all-features`
+- **Average True Range (ATR)**: [atr.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/atr.rs)
+- **McGinley Dynamic Indicator (MD)**: [md.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/md.rs)
+- **On-Balance Volume (OBV)**: [obv.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/obv.rs)
+- **Traits (Traits)**: [user_traits.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/user_traits.rs)
 
 ## Tips Appreciated!
 

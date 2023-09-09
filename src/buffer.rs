@@ -94,7 +94,7 @@ impl Buffer {
 
         // Resize, trimming oldest if extends past capacity.
         if self.data.len() > self.capacity() {
-            oldest = self.data[self.data.len() - self.capacity() - 1].clone();
+            oldest = self.data[self.data.len() - self.capacity() - 1];
             self.data.drain(..(self.data.len() - self.capacity()));
         }
 

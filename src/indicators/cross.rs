@@ -3,7 +3,7 @@
 //! Death Cross: `short_line` (reactive) crosses below `long_line` (historic).
 //!
 //! Golden Cross: `short_line` (reactive) crosses above `long_line` (historic).
-use crate::traits::Line;
+use crate::traits::{Next, Value};
 use crate::Num;
 
 /// Cross, used to check if lines cross.
@@ -14,7 +14,7 @@ use crate::Num;
 #[derive(Debug)]
 pub struct Cross<L>
 where
-    L: Line,
+    L: Value,
 {
     // Shorter line (shorter period)
     short_line: L,
@@ -26,7 +26,7 @@ where
 
 impl<L> Cross<L>
 where
-    L: Line,
+    L: Value + Next<Num>,
 {
     /// Creates a new Cross with the supplied two lines.
     ///

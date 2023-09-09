@@ -13,7 +13,7 @@
 //! * `z` = Period - 1.
 //! * `x1` = Most recent gain.
 //! * `y1` = Most recent loss.
-use crate::traits::{Line, Stats};
+use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
 /// Relative Strength Index (RSI)
@@ -71,13 +71,13 @@ impl RSI {
 
         let mut gains: Num = 0.0;
         let mut losses: Num = 0.0;
-        let mut last_data_value: Num = data[0].clone();
+        let mut last_data_value: &Num = &data[0];
 
         // Generates the gains / losses for the first period of values. Unique and uses all gains /
         // losses for the first period as a seed value.
         for value in data[1..=period].iter() {
             let change = value - last_data_value;
-            last_data_value = value.clone();
+            last_data_value = value;
             if change > 0.0 {
                 gains = gains + change;
             } else {
@@ -112,7 +112,7 @@ impl RSI {
 
                 value = Self::calculate(period, &mut last_gain, &mut last_loss, gain, loss);
                 buffer.shift(value);
-                last_data_value = v.clone();
+                last_data_value = v;
             }
         }
 
@@ -121,7 +121,7 @@ impl RSI {
             value,
             gain_avg: last_gain,
             loss_avg: last_loss,
-            last_data_value,
+            last_data_value: last_data_value.clone(),
             oversold: 20.0,
             overbought: 80.0,
             buffer,
@@ -179,23 +179,30 @@ impl RSI {
     }
 }
 
-impl Line for RSI {
+impl Period for RSI {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
+}
 
+impl Value for RSI {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
+}
+
+impl Next<Num> for RSI {
+    /// Value for the next RSI.
+    type Output = Num;
 
     /// Supply an additional value to recalculate a new RSI.
     ///
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Self::Output {
         let mut gain = 0.0;
         let mut loss = 0.0;
         let change = value - self.last_data_value();
@@ -216,6 +223,23 @@ impl Line for RSI {
             loss,
         );
         self.value
+    }
+}
+
+impl<T> Next<T> for RSI
+where
+    T: AsValue,
+{
+    /// Value for the next RSI.
+    type Output = Num;
+
+    /// Supply an additional value to recalculate a new RSI.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: T) -> Self::Output {
+        self.next(value.as_value())
     }
 }
 

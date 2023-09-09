@@ -12,7 +12,7 @@
 //! * `x` is the current value in a set.
 //! * `μ` is the mean of the set.
 //! * `∑` is the sum.
-use crate::traits::Line;
+use crate::traits::{AsValue, Next, Period, Value};
 use crate::{Buffer, Num, TAError};
 
 /// Standard Deviation (SD/STDEV)
@@ -79,28 +79,52 @@ impl STDEV {
     }
 }
 
-impl Line for STDEV {
+impl Period for STDEV {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
+}
 
+impl Value for STDEV {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
+}
+
+impl Next<Num> for STDEV {
+    /// Value for the next STDEV.
+    type Output = Num;
 
     /// Supply an additional value to recalculate a new standard deviation.
     ///
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Self::Output {
         // Rotate the buffer.
         self.buffer.shift(value);
 
         // Calculate the new STDEV.
         self.value = self.buffer.stdev(self.is_sample());
         self.value
+    }
+}
+
+impl<T> Next<T> for STDEV
+where
+    T: AsValue,
+{
+    /// Value for the next STDEV.
+    type Output = Num;
+
+    /// Supply an additional value to recalculate a new STDEV.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: T) -> Self::Output {
+        self.next(value.as_value())
     }
 }

@@ -11,7 +11,7 @@
 //! * `x` is the current value in a set.
 //! * `μ` is the mean of the set.
 //! * `∑` is the sum.
-use crate::traits::Line;
+use crate::traits::{AsValue, Next, Period, Value};
 use crate::{Buffer, Num, TAError};
 
 /// Variance (Var(X))
@@ -77,28 +77,52 @@ impl Variance {
     }
 }
 
-impl Line for Variance {
+impl Period for Variance {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
+}
 
+impl Value for Variance {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
+}
+
+impl Next<Num> for Variance {
+    /// Value for the next Variance.
+    type Output = Num;
 
     /// Supply an additional value to recalculate a new Var(X).
     ///
     /// # Arguments
     ///
     /// * `value` - New value to add to period.
-    fn next(&mut self, value: Num) -> Num {
+    fn next(&mut self, value: Num) -> Self::Output {
         // Rotate the buffer.
         self.buffer.shift(value);
 
         // Calculate the new Var(X).
         self.value = self.buffer.variance(self.is_sample());
         self.value
+    }
+}
+
+impl<T> Next<T> for Variance
+where
+    T: AsValue,
+{
+    /// Value for the next Variance.
+    type Output = Num;
+
+    /// Supply an additional value to recalculate a new Variance.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - New value to add to period.
+    fn next(&mut self, value: T) -> Self::Output {
+        self.next(value.as_value())
     }
 }
