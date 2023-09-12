@@ -5,17 +5,20 @@ use tatk::traits::{Next, Value};
 
 fn main() {
     let period: usize = 10;
-    let k: f64 = 0.6;
-    const DATA: &[f64] = TestData::talib();
+    let data: &[f64] = TestData::talib_small();
 
-    println!("Data: {:?}", DATA);
+    println!("Data (total): {:?}", data.len());
     println!("Period: {}", period);
 
-    let mut md = match MD::new(period, DATA, k) {
+    // Create the MD.
+    let mut md = match MD::new(period, &data[..data.len() - 1], 0.6) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
 
+    // Extract last data point.
+    let last_data = data[data.len() - 1];
+
     println!("\nMD: {}", md.value());
-    println!("Adding 107.00. New MD: {}", md.next(107.0));
+    println!("Adding {}. New MD: {}", last_data, md.next(last_data));
 }

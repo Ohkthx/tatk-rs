@@ -4,14 +4,14 @@ use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
 fn main() {
-    let period: usize = 20;
-    const DATA: &[f64] = TestData::talib();
+    let period: usize = 10;
+    let data: &[f64] = TestData::talib_small();
 
-    println!("Data: {:?}", DATA);
+    println!("Data (total): {:?}", data.len());
     println!("Period: {}", period);
 
-    // Use EMA as the line instead of the default SMA.
-    let ema = match EMA::new(period, DATA) {
+    // Use EMA as the line instead of the default EMA.
+    let ema = match EMA::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
@@ -21,6 +21,9 @@ fn main() {
         Err(error) => panic!("{}", error),
     };
 
+    // Extract last data point.
+    let last_data = data[data.len() - 1];
+
     println!(
         "\nBollinger Band (BBands): {}, lower: {}, upper: {}",
         bbands.value(),
@@ -28,9 +31,9 @@ fn main() {
         bbands.upper()
     );
 
-    let next = bbands.next(107.0);
+    let next = bbands.next(last_data);
     println!(
-        "Adding 107.00. New BBands: {}, lower: {}, upper: {}",
-        next.1, next.0, next.2
+        "Adding {}. New BBands: {}, lower: {}, upper: {}",
+        last_data, next.1, next.0, next.2
     );
 }

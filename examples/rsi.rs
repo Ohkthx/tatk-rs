@@ -4,13 +4,14 @@ use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
 fn main() {
-    let period: usize = 14;
-    const DATA: &[f64] = TestData::talib();
+    let period: usize = 10;
+    let data: &[f64] = TestData::talib_small();
 
-    println!("Data: {:?}", DATA);
+    println!("Data (total): {:?}", data.len());
     println!("Period: {}", period);
 
-    let mut rsi = match RSI::new(period, DATA) {
+    // Create the RSI.
+    let mut rsi = match RSI::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
@@ -19,11 +20,14 @@ fn main() {
     rsi.set_oversold(30.0);
     rsi.set_overbought(70.0);
 
+    // Extract last data point.
+    let last_data = data[data.len() - 1];
+
     println!("\nRSI: {}", rsi.value());
     println!(
         "Oversold?: {}, Overbought: {}",
         rsi.is_oversold(),
         rsi.is_overbought()
     );
-    println!("Adding 107.00. New RSI: {}", rsi.next(107.0));
+    println!("Adding {}. New RSI: {}", last_data, rsi.next(last_data));
 }

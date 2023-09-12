@@ -4,58 +4,57 @@ use tatk::test_data::{Candle, TestData};
 use tatk::traits::{Next, Value};
 
 #[cfg(feature = "test-data")]
-const DATA: &[f64] = TestData::talib();
+const DATA: &[f64] = TestData::talib_small();
 
 #[test]
 #[cfg(feature = "test-data")]
-/// Create and calculate a MACD using 252 data points with a short of 12, long of 26, and signal of 9.
+/// Create and calculate a MACD using 19 data points with a short of 8, long of 10, and signal of 6.
 fn create_macd() {
-    let macd = MACD::new(12, 26, 9, DATA).unwrap();
-    assert_eq!(macd.value(), 0.9040092995013111)
+    let indicator = MACD::new(8, 10, 6, &DATA[..DATA.len() - 1]).unwrap();
+    assert_eq!(indicator.value(), -0.3145389483187415)
 }
 
 #[test]
 #[cfg(feature = "test-data")]
-/// Creates a MACD from 252 data points with short of 12, long of 26, and signal of 9, then adds an additional data point
+/// Creates a MACD from 19 data points with short of 8, long of 10, and signal of 6, then adds an additional data point
 /// to move the ensure the window of viewed is moving.
 fn next_macd() {
-    let mut macd = MACD::new(12, 26, 9, DATA).unwrap();
-    assert_eq!(macd.next(107.0).0, 0.6789823967962718)
+    let mut indicator = MACD::new(8, 10, 6, &DATA[..DATA.len() - 1]).unwrap();
+    assert_eq!(indicator.next(DATA[DATA.len() - 1]).0, -0.3300712744833305)
 }
 
 #[test]
 #[cfg(feature = "test-data")]
-/// Create and calculate a RSI using 252 data points with a short of 12, long of 26, and signal of 9.
+/// Create and calculate a RSI using 19 data points with a period of 10.
 fn create_rsi() {
-    let rsi = RSI::new(14, DATA).unwrap();
-    assert_eq!(rsi.value(), 49.63210207086755)
+    let indicator = RSI::new(10, &DATA[..DATA.len() - 1]).unwrap();
+    assert_eq!(indicator.value(), 49.16871847490771)
 }
 
 #[test]
 #[cfg(feature = "test-data")]
-/// Creates a RSI from 252 data points with short of 12, long of 26, and signal of 9, then adds an additional data point
+/// Creates a RSI from 19 data points with period of 10, then adds an additional data point
 /// to move the ensure the window of viewed is moving.
 fn next_rsi() {
-    let mut rsi = RSI::new(14, DATA).unwrap();
-    assert_eq!(rsi.next(107.0), 47.53209455563524)
+    let mut indicator = RSI::new(10, &DATA[..DATA.len() - 1]).unwrap();
+    assert_eq!(indicator.next(DATA[DATA.len() - 1]), 45.033256056615095)
 }
 
 #[test]
 #[cfg(feature = "test-data")]
-/// Create and calculate BBands using 252 data points with a period of 20.
+/// Create and calculate BBands using 19 data points with a period of 20.
 fn create_bbands() {
-    let bbands = BBands::new(20, DATA, 2.0).unwrap();
-    assert_eq!(bbands.lower(), 104.38335904421554)
+    let indicator = BBands::new(10, &DATA[..DATA.len() - 1], 2.0).unwrap();
+    assert_eq!(indicator.value(), 92.816)
 }
 
 #[test]
 #[cfg(feature = "test-data")]
-/// Creates BBands from 252 data points with period of 20, then adds an additional data point
+/// Creates BBands from 19 data points with period of 20, then adds an additional data point
 /// to move the ensure the window of viewed is moving.
 fn next_bbands() {
-    let mut bbands = BBands::new(20, DATA, 2.0).unwrap();
-    bbands.next(107.0);
-    assert_eq!(bbands.upper(), 116.6788398921392)
+    let mut indicator = BBands::new(10, &DATA[..DATA.len() - 1], 2.0).unwrap();
+    assert_eq!(indicator.next(DATA[DATA.len() - 1]).1, 92.5565)
 }
 
 #[test]
@@ -63,8 +62,8 @@ fn next_bbands() {
 /// Create and calculate ATR using 364 data points with a period of 14.
 fn create_atr() {
     let candles: Vec<Candle> = TestData::candles();
-    let atr = ATR::new(14, &candles[..candles.len() - 2]).unwrap();
-    assert_eq!(atr.value(), 754.436206059607)
+    let atr = ATR::new(10, &candles[..candles.len() - 1]).unwrap();
+    assert_eq!(atr.value(), 839.944706407304)
 }
 
 #[test]
@@ -73,6 +72,6 @@ fn create_atr() {
 /// to move the ensure the window of viewed is moving.
 fn next_atr() {
     let candles: Vec<Candle> = TestData::candles();
-    let mut atr = ATR::new(14, &candles[..candles.len() - 2]).unwrap();
-    assert_eq!(atr.next(candles[candles.len() - 1]), 750.075762769635)
+    let mut atr = ATR::new(10, &candles[..candles.len() - 1]).unwrap();
+    assert_eq!(atr.next(candles[candles.len() - 1]), 854.3072357665736)
 }

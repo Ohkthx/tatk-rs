@@ -5,16 +5,20 @@ use tatk::traits::{Next, Value};
 
 fn main() {
     let period: usize = 10;
-    const DATA: &[f64] = TestData::talib();
+    let data: &[f64] = TestData::talib_small();
 
-    println!("Data: {:?}", DATA);
+    println!("Data (total): {:?}", data.len());
     println!("Period: {}", period);
 
-    let mut sma = match SMA::new(period, DATA) {
+    // Create the SMA.
+    let mut sma = match SMA::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
 
+    // Extract last data point.
+    let last_data = data[data.len() - 1];
+
     println!("\nSMA: {}", sma.value());
-    println!("Adding 107.00. New SMA: {}", sma.next(107.0));
+    println!("Adding {}. New SMA: {}", last_data, sma.next(last_data));
 }

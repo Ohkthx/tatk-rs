@@ -4,17 +4,24 @@ use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
 fn main() {
-    let period: usize = 10;
-    const DATA: &[f64] = TestData::talib();
+    let short: usize = 8;
+    let long: usize = 10;
+    let signal: usize = 6;
+    let data: &[f64] = TestData::talib_small();
 
-    println!("Data: {:?}", DATA);
-    println!("Period: {}", period);
+    println!("Data (total): {:?}", data.len());
+    println!("Periods:");
+    println!("short: {}, long: {}, signal: {}", short, long, signal);
 
-    let mut macd = match MACD::new(12, 26, 9, DATA) {
+    // Create the MACD.
+    let mut macd = match MACD::new(short, long, signal, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
 
+    // Extract last data point.
+    let last_data = data[data.len() - 1];
+
     println!("\nMACD: {}, signal: {}", macd.value(), macd.signal_value());
-    println!("Adding 107.00. New MACD: {}", macd.next(107.0).1);
+    println!("Adding {}. New MACD: {}", last_data, macd.next(last_data).0);
 }

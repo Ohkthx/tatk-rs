@@ -29,12 +29,13 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
 ```
 
 ## Features
-- **Moving Averages**
+- **Momentum / Moving Averages**
   - Simple Moving Average (SMA)
   - Exponential Moving Average (EMA)
   - Double Exponential Moving Average (DEMA)
   - McGinley Dynamic Indicator (MD)
   - On-Balance Volume (OBV)
+  - Rate of Change (ROC)
 - **Oscillators**
   - Relative Strength Index (RSI)
   - Moving Average Convergence and Divergence (MACD)
@@ -84,6 +85,7 @@ Following examples can be ran with:  `cargo run --example short_id`
 - **Average True Range (ATR)**: [atr.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/atr.rs)
 - **McGinley Dynamic Indicator (MD)**: [md.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/md.rs)
 - **On-Balance Volume (OBV)**: [obv.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/obv.rs)
+- **Rate of Change (ROC)**: [roc.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/roc.rs)
 - **Traits (Traits)**: [user_traits.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/user_traits.rs)
 
 ## Tips Appreciated!

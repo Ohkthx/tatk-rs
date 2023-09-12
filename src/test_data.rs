@@ -30,6 +30,12 @@ const TEST_DATA: &[f64] = &[
     108.0, 108.62, 109.75, 109.81, 109.0, 108.75, 107.87,
 ];
 
+/// Smaller TA-Lib test set.
+const TEST_DATA_SMALL: &[f64] = &[
+    91.5, 94.815, 94.375, 95.095, 93.78, 94.625, 92.53, 92.75, 90.315, 92.47, 96.125, 97.25, 98.5,
+    89.875, 91.0, 92.815, 89.155, 89.345, 91.625, 89.875,
+];
+
 /// BTC-USD 24hr candles for 365 days.
 ///
 /// Format: (Open, Close, High, Low, Volume)
@@ -451,6 +457,17 @@ impl TestData {
     /// Test Data used by examples and tests.
     pub const fn talib() -> &'static [f64] {
         TEST_DATA
+    }
+
+    /// First 20 elements of TA-Libs data.
+    ///
+    /// These numbers originate from `TA-Lib`:
+    ///
+    /// [test_data.c](https://github.com/TA-Lib/ta-lib/blob/3af20ca83e45f9f880a371d1577f2db686036f10/src/tools/ta_regtest/test_data.c#L92)
+    ///
+    /// Test Data used by examples and tests.
+    pub const fn talib_small() -> &'static [f64] {
+        TEST_DATA_SMALL
     }
 
     /// BTC-USD 24hr candles for 365 days.
