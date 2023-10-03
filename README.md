@@ -43,6 +43,7 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
   - True Range (TR)
   - Average True Range (ATR)
 - **Others**
+  - Linear Regression (LineReg)
   - Variance (Var(X))
   - Standard Deviation (SD/STDEV)
   - Cross (Cross), checks two lines for Golden or Death cross.
@@ -86,6 +87,7 @@ Following examples can be ran with:  `cargo run --example short_id`
 - **McGinley Dynamic Indicator (MD)**: [md.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/md.rs)
 - **On-Balance Volume (OBV)**: [obv.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/obv.rs)
 - **Rate of Change (ROC)**: [roc.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/roc.rs)
+- **Linear Regression (LineReg)**: [linereg.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/linereg.rs)
 - **Traits (Traits)**: [user_traits.rs](https://github.com/Ohkthx/tatk-rs/tree/main/examples/user_traits.rs)
 
 ## Tips Appreciated!

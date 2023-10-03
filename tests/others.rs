@@ -1,17 +1,14 @@
-use tatk::indicators::{Variance, STDEV};
-#[cfg(feature = "test-data")]
-use tatk::test_data::TestData;
-use tatk::traits::{Next, Value};
-
-#[cfg(feature = "test-data")]
-const DATA: &[f64] = TestData::talib_small();
-
 #[test]
 #[cfg(feature = "test-data")]
 /// Create and calculate the sample variance using 20 data points with a period of 10.
 fn create_variance_sample() {
-    let variance = Variance::new(10, DATA, true).unwrap();
-    assert_eq!(variance.value(), 12.190039166666669)
+    use tatk::indicators::Variance;
+    use tatk::test_data::TestData;
+    use tatk::traits::Value;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let indicator = Variance::new(10, &DATA[..DATA.len() - 1], true).unwrap();
+    assert_eq!(indicator.value(), 11.317109999999998)
 }
 
 #[test]
@@ -19,16 +16,26 @@ fn create_variance_sample() {
 /// Create and calculate the sample variance using 20 data points with a period of 10, then adds an
 /// additional data point.
 fn next_variance_sample() {
-    let mut variance = Variance::new(10, DATA, true).unwrap();
-    assert_eq!(variance.next(107.0), 32.640476666666665)
+    use tatk::indicators::Variance;
+    use tatk::test_data::TestData;
+    use tatk::traits::Next;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let mut indicator = Variance::new(10, &DATA[..DATA.len() - 1], true).unwrap();
+    assert_eq!(indicator.next(DATA[DATA.len() - 1]), 12.190039166666669)
 }
 
 #[test]
 #[cfg(feature = "test-data")]
 /// Create and calculate the population variance using 20 data points with a period of 10.
 fn create_variance_population() {
-    let variance = Variance::new(10, DATA, false).unwrap();
-    assert_eq!(variance.value(), 10.971035250000002)
+    use tatk::indicators::Variance;
+    use tatk::test_data::TestData;
+    use tatk::traits::Value;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let indicator = Variance::new(10, &DATA[..DATA.len() - 1], false).unwrap();
+    assert_eq!(indicator.value(), 10.185398999999999)
 }
 
 #[test]
@@ -36,16 +43,26 @@ fn create_variance_population() {
 /// Create and calculate the population variance using 20 data points with a period of 10, then adds an
 /// additional data point.
 fn next_variance_population() {
-    let mut variance = Variance::new(10, DATA, false).unwrap();
-    assert_eq!(variance.next(107.0), 29.376428999999995)
+    use tatk::indicators::Variance;
+    use tatk::test_data::TestData;
+    use tatk::traits::Next;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let mut indicator = Variance::new(10, &DATA[..DATA.len() - 1], false).unwrap();
+    assert_eq!(indicator.next(DATA[DATA.len() - 1]), 10.971035250000002)
 }
 
 #[test]
 #[cfg(feature = "test-data")]
 /// Create and calculate the sample standard deviation using 20 data points with a period of 10.
 fn create_stdev_sample() {
-    let stdev = STDEV::new(10, DATA, true).unwrap();
-    assert_eq!(stdev.value(), 3.491423659005975)
+    use tatk::indicators::STDEV;
+    use tatk::test_data::TestData;
+    use tatk::traits::Value;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let indicator = STDEV::new(10, &DATA[..DATA.len() - 1], true).unwrap();
+    assert_eq!(indicator.value(), 3.3640912591664334)
 }
 
 #[test]
@@ -53,16 +70,26 @@ fn create_stdev_sample() {
 /// Create and calculate the sample standard deviation using 20 data points with a period of 10, then adds an
 /// additional data point.
 fn next_stdev_sample() {
-    let mut stdev = STDEV::new(10, DATA, true).unwrap();
-    assert_eq!(stdev.next(107.0), 5.713184459359479)
+    use tatk::indicators::STDEV;
+    use tatk::test_data::TestData;
+    use tatk::traits::Next;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let mut indicator = STDEV::new(10, &DATA[..DATA.len() - 1], true).unwrap();
+    assert_eq!(indicator.next(DATA[DATA.len() - 1]), 3.491423659005975)
 }
 
 #[test]
 #[cfg(feature = "test-data")]
 /// Create and calculate the population standard deviation using 20 data points with a period of 10.
 fn create_stdev_population() {
-    let stdev = STDEV::new(10, DATA, false).unwrap();
-    assert_eq!(stdev.value(), 3.3122553117173807)
+    use tatk::indicators::STDEV;
+    use tatk::test_data::TestData;
+    use tatk::traits::Value;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let indicator = STDEV::new(10, &DATA[..DATA.len() - 1], false).unwrap();
+    assert_eq!(indicator.value(), 3.1914571906889178)
 }
 
 #[test]
@@ -70,6 +97,38 @@ fn create_stdev_population() {
 /// Create and calculate the population standard deviation using 20 data points with a period of 10, then adds an
 /// additional data point.
 fn next_stdev_population() {
-    let mut stdev = STDEV::new(10, DATA, false).unwrap();
-    assert_eq!(stdev.next(107.0), 5.420002675276092)
+    use tatk::indicators::STDEV;
+    use tatk::test_data::TestData;
+    use tatk::traits::Next;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let mut indicator = STDEV::new(10, &DATA[..DATA.len() - 1], false).unwrap();
+    assert_eq!(indicator.next(DATA[DATA.len() - 1]), 3.3122553117173807)
+}
+
+#[test]
+#[cfg(feature = "test-data")]
+/// Create and calculate the best fit line using 20 data points with a period of 10.
+fn create_linereg() {
+    use tatk::indicators::LineReg;
+    use tatk::test_data::TestData;
+    use tatk::traits::Value;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let indicator = LineReg::new(10, &DATA[..DATA.len() - 1]).unwrap();
+    assert_eq!(indicator.value(), 89.77590909090917)
+}
+
+#[test]
+#[cfg(feature = "test-data")]
+/// Create and calculate the best fit line using 20 data points with a period of 10, then adds an
+/// additional data point.
+fn next_linereg() {
+    use tatk::indicators::LineReg;
+    use tatk::test_data::TestData;
+    use tatk::traits::Next;
+    const DATA: &[f64] = TestData::talib_small();
+
+    let mut indicator = LineReg::new(10, &DATA[..DATA.len() - 1]).unwrap();
+    assert_eq!(indicator.next(DATA[DATA.len() - 1]), 88.69072727272732)
 }

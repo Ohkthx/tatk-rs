@@ -89,7 +89,7 @@ impl Buffer {
             oldest = self.data.remove(0usize);
         }
 
-        self.sum = self.sum() - oldest + value;
+        self.sum += value - oldest;
         self.data.push(value);
 
         // Resize, trimming oldest if extends past capacity.

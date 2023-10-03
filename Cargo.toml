@@ -1,7 +1,7 @@
 [package]
 name = "tatk"
 license = "MIT"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 description = "Technical Analysis Toolkit"
 readme = "README.md"
@@ -64,6 +64,11 @@ required-features = ["test-data"]
 [[example]]
 name = "roc"
 path = "examples/roc.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "linereg"
+path = "examples/linereg.rs"
 required-features = ["test-data"]
 
 [[example]]

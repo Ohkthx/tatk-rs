@@ -109,7 +109,7 @@ impl OBV {
     /// * `close` - Current close value.
     /// * `close_prev` - Previous close value.
     /// * `volume` - Current volume.
-    pub fn calculate<T>(last_obv: Num, value: &T, close_prev: Num) -> Num
+    fn calculate<T>(last_obv: Num, value: &T, close_prev: Num) -> Num
     where
         T: Close + Volume,
     {

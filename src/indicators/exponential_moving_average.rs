@@ -91,7 +91,7 @@ impl EMA {
     ///
     /// # Arguments
     ///
-    /// * `period` - Size of the period / window used.
+    /// * `k` - Smoothing value for the EMA.
     /// * `last_ema` - Last EMA calculated.
     /// * `value` - Most recent value.
     fn calculate(k: &Num, last_ema: &Num, value: &Num) -> Num {
