@@ -25,7 +25,7 @@ use crate::{Buffer, Num, TAError};
 /// * `k` = 2 * (n + 1)
 /// * `n` = period
 #[derive(Debug)]
-pub struct EMA {
+pub struct Ema {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// Current value for the EMA.
@@ -36,7 +36,7 @@ pub struct EMA {
     k: Num,
 }
 
-impl EMA {
+impl Ema {
     /// Creates a new EMA with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -99,21 +99,21 @@ impl EMA {
     }
 }
 
-impl Period for EMA {
+impl Period for Ema {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for EMA {
+impl Value for Ema {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for EMA {
+impl Next<Num> for Ema {
     /// Next Value for the EMA.
     type Output = Num;
 
@@ -130,7 +130,7 @@ impl Next<Num> for EMA {
     }
 }
 
-impl<T> Next<T> for EMA
+impl<T> Next<T> for Ema
 where
     T: AsValue,
 {
@@ -147,7 +147,7 @@ where
     }
 }
 
-impl Stats for EMA {
+impl Stats for Ema {
     /// Obtains the total sum of the buffer for EMA.
     fn sum(&self) -> Num {
         self.buffer.sum()

@@ -8,7 +8,7 @@ use crate::{Buffer, Num, TAError};
 ///
 /// Creates a line that best fits a period of data using the least squares approach.
 #[derive(Debug)]
-pub struct LineReg {
+pub struct Linereg {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// LineReg's current value.
@@ -27,7 +27,7 @@ pub struct LineReg {
     slope: Num,
 }
 
-impl LineReg {
+impl Linereg {
     /// Creates a new LineReg with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -159,21 +159,21 @@ impl LineReg {
     }
 }
 
-impl Period for LineReg {
+impl Period for Linereg {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for LineReg {
+impl Value for Linereg {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for LineReg {
+impl Next<Num> for Linereg {
     /// Next Value for the LineReg.
     type Output = Num;
 
@@ -198,7 +198,7 @@ impl Next<Num> for LineReg {
     }
 }
 
-impl<T> Next<T> for LineReg
+impl<T> Next<T> for Linereg
 where
     T: AsValue,
 {
@@ -215,7 +215,7 @@ where
     }
 }
 
-impl Stats for LineReg {
+impl Stats for Linereg {
     /// Obtains the total sum of the buffer for LineReg.
     fn sum(&self) -> Num {
         self.buffer.sum()

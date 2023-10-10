@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use an ATR.
-use tatk::indicators::ATR;
+use tatk::indicators::Atr;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,7 +11,7 @@ fn main() {
     println!("Period: {}", period);
 
     // Create the ATR.
-    let mut atr = match ATR::new(period, &candles[..candles.len() - 1]) {
+    let mut atr = match Atr::new(period, &candles[..candles.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

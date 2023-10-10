@@ -22,7 +22,7 @@ use crate::{Buffer, Num, TAError};
 /// * `x` = current value (most recent)
 /// * `y` = value `n` periods prior.
 #[derive(Debug)]
-pub struct ROC {
+pub struct Roc {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// ROC's current value.
@@ -33,7 +33,7 @@ pub struct ROC {
     buffer: Buffer,
 }
 
-impl ROC {
+impl Roc {
     /// Creates a new ROC with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -93,21 +93,21 @@ impl ROC {
     }
 }
 
-impl Period for ROC {
+impl Period for Roc {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for ROC {
+impl Value for Roc {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for ROC {
+impl Next<Num> for Roc {
     /// Next Value for the ROC.
     type Output = Num;
 
@@ -125,7 +125,7 @@ impl Next<Num> for ROC {
     }
 }
 
-impl<T> Next<T> for ROC
+impl<T> Next<T> for Roc
 where
     T: AsValue,
 {
@@ -142,7 +142,7 @@ where
     }
 }
 
-impl Stats for ROC {
+impl Stats for Roc {
     /// Obtains the total sum of the buffer for ROC.
     fn sum(&self) -> Num {
         self.buffer.sum()

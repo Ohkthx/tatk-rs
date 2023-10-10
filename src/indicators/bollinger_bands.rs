@@ -11,7 +11,7 @@
 //! * `SMA` is the moving average of a period.
 //! * `σ` is the standard deviation of the period.
 //! * `d` is the distance from the SMA to calculate.
-use super::SMA;
+use super::Sma;
 use crate::traits::{Next, Period, Stats, Value};
 use crate::{Num, TAError};
 
@@ -29,7 +29,7 @@ use crate::{Num, TAError};
 /// * `σ` is the standard deviation of the period.
 /// * `d` is the distance from the SMA to calculate.
 #[derive(Debug)]
-pub struct BBands<L>
+pub struct Bbands<L>
 where
     L: Value + Period + Stats,
 {
@@ -45,7 +45,7 @@ where
     upper: Num,
 }
 
-impl BBands<SMA> {
+impl Bbands<Sma> {
     /// Creates a new Bollinger Band with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -57,7 +57,7 @@ impl BBands<SMA> {
     /// * `distance` - Distance the bands (in standard deviations) from the SMA. default 2.0
     pub fn new(period: usize, data: &[Num], distance: Num) -> Result<Self, TAError> {
         // SMA used for the Bollinger Band.
-        let sma = match SMA::new(period, data) {
+        let sma = match Sma::new(period, data) {
             Ok(v) => v,
             Err(error) => return Err(error),
         };
@@ -77,7 +77,7 @@ impl BBands<SMA> {
     }
 }
 
-impl<L> BBands<L>
+impl<L> Bbands<L>
 where
     L: Value + Period + Stats,
 {
@@ -87,7 +87,7 @@ where
     ///
     /// * `line` - `Line` to use as the middle value.
     /// * `distance` - Distance the bands (in standard deviations) from the SMA. default 2.0
-    pub fn with_line(line: L, distance: Num) -> Result<BBands<L>, TAError> {
+    pub fn with_line(line: L, distance: Num) -> Result<Bbands<L>, TAError> {
         let distance = distance.abs();
         let stdev = line.stdev(true);
         let lower = line.value() - (stdev * distance);
@@ -118,7 +118,7 @@ where
     }
 }
 
-impl<L> Period for BBands<L>
+impl<L> Period for Bbands<L>
 where
     L: Value + Period + Stats,
 {
@@ -128,7 +128,7 @@ where
     }
 }
 
-impl<L> Value for BBands<L>
+impl<L> Value for Bbands<L>
 where
     L: Value + Period + Stats,
 {
@@ -138,7 +138,7 @@ where
     }
 }
 
-impl<L> Next<Num> for BBands<L>
+impl<L> Next<Num> for Bbands<L>
 where
     L: Value + Period + Stats + Next<Num>,
 {

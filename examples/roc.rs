@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use a ROC.
-use tatk::indicators::ROC;
+use tatk::indicators::Roc;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,7 +11,7 @@ fn main() {
     println!("Period: {}", period);
 
     // Create the ROC.
-    let mut roc = match ROC::new(period, &data[..data.len() - 1]) {
+    let mut roc = match Roc::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

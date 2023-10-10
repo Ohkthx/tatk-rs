@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use an OBV.
-use tatk::indicators::OBV;
+use tatk::indicators::Obv;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,7 +11,7 @@ fn main() {
     println!("Period: {}", period);
 
     // Create the OBV.
-    let mut atr = match OBV::new(period, &candles[..candles.len() - 1]) {
+    let mut atr = match Obv::new(period, &candles[..candles.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

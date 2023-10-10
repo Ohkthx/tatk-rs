@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use a MD.
-use tatk::indicators::MD;
+use tatk::indicators::Mdi;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,7 +11,7 @@ fn main() {
     println!("Period: {}", period);
 
     // Create the MD.
-    let mut md = match MD::new(period, &data[..data.len() - 1], 0.6) {
+    let mut md = match Mdi::new(period, &data[..data.len() - 1], 0.6) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

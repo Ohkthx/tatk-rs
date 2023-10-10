@@ -46,7 +46,7 @@ impl Volume for Data {
 /// * `y` = last close
 /// * `z` = current volume
 #[derive(Debug)]
-pub struct OBV {
+pub struct Obv {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// OBV's current value.
@@ -57,7 +57,7 @@ pub struct OBV {
     buffer: Buffer,
 }
 
-impl OBV {
+impl Obv {
     /// Creates a new OBV with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -125,21 +125,21 @@ impl OBV {
     }
 }
 
-impl Period for OBV {
+impl Period for Obv {
     /// Period (window) for the history.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for OBV {
+impl Value for Obv {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl<T> Next<T> for OBV
+impl<T> Next<T> for Obv
 where
     T: Close + Volume,
 {
@@ -161,7 +161,7 @@ where
     }
 }
 
-impl Next<(Num, Num)> for OBV {
+impl Next<(Num, Num)> for Obv {
     /// Next Value for the OBV.
     type Output = Num;
 
@@ -182,7 +182,7 @@ impl Next<(Num, Num)> for OBV {
     }
 }
 
-impl Stats for OBV {
+impl Stats for Obv {
     /// Obtains the total sum of the buffer for OBV.
     fn sum(&self) -> Num {
         self.buffer.sum()

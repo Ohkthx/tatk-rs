@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use a RSI.
-use tatk::indicators::RSI;
+use tatk::indicators::Rsi;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,7 +11,7 @@ fn main() {
     println!("Period: {}", period);
 
     // Create the RSI.
-    let mut rsi = match RSI::new(period, &data[..data.len() - 1]) {
+    let mut rsi = match Rsi::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

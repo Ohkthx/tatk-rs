@@ -24,7 +24,7 @@ use crate::{Buffer, Num, TAError};
 /// * `k` = modifies the period, normally 0.6
 /// * `n` = period
 #[derive(Debug)]
-pub struct MD {
+pub struct Mdi {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// Constant for period modification.
@@ -35,7 +35,7 @@ pub struct MD {
     buffer: Buffer,
 }
 
-impl MD {
+impl Mdi {
     /// Creates a new MD with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -91,21 +91,21 @@ impl MD {
     }
 }
 
-impl Period for MD {
+impl Period for Mdi {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for MD {
+impl Value for Mdi {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for MD {
+impl Next<Num> for Mdi {
     /// Next Value for the MD.
     type Output = Num;
 
@@ -123,7 +123,7 @@ impl Next<Num> for MD {
     }
 }
 
-impl<T> Next<T> for MD
+impl<T> Next<T> for Mdi
 where
     T: AsValue,
 {
@@ -140,7 +140,7 @@ where
     }
 }
 
-impl Stats for MD {
+impl Stats for Mdi {
     /// Obtains the total sum of the buffer for MD.
     fn sum(&self) -> Num {
         self.buffer.sum()

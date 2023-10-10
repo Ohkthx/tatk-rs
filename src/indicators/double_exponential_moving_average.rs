@@ -11,7 +11,7 @@
 //! * `x` = \[EMA(n)\] Current EMA of period `n`
 //! * `y` = \[EMA(EMA(n))\] EMA of EMA(n)
 //! * `n` = period
-use super::EMA;
+use super::Ema;
 use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
@@ -29,20 +29,20 @@ use crate::{Buffer, Num, TAError};
 /// * `y` = \[EMA(EMA(n))\] EMA of EMA(n)
 /// * `n` = period
 #[derive(Debug)]
-pub struct DEMA {
+pub struct Dema {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// DEMA's current value.
     value: Num,
     /// EMA(n), EMA of values / samples provided.
-    ema_n: EMA,
+    ema_n: Ema,
     /// EMA(EMA(n)), EMA of EMA(n).
-    ema_ema_n: EMA,
+    ema_ema_n: Ema,
     /// Holds `period` amount of generated DEMAs.
     buffer: Buffer,
 }
 
-impl DEMA {
+impl Dema {
     /// Creates a new DEMA with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -60,7 +60,7 @@ impl DEMA {
         }
 
         // Build EMA(n) from first 'n' samples (period amount).
-        let mut ema_n = match EMA::new(period, &data[..period]) {
+        let mut ema_n = match Ema::new(period, &data[..period]) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -72,7 +72,7 @@ impl DEMA {
         }
 
         // EMA of EMA(n)
-        let mut ema_ema_n = match EMA::new(period, &n_ema_n) {
+        let mut ema_ema_n = match Ema::new(period, &n_ema_n) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -103,21 +103,21 @@ impl DEMA {
     }
 }
 
-impl Period for DEMA {
+impl Period for Dema {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for DEMA {
+impl Value for Dema {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for DEMA {
+impl Next<Num> for Dema {
     /// Next Value for the DEMA.
     type Output = Num;
 
@@ -136,7 +136,7 @@ impl Next<Num> for DEMA {
     }
 }
 
-impl<T> Next<T> for DEMA
+impl<T> Next<T> for Dema
 where
     T: AsValue,
 {
@@ -153,7 +153,7 @@ where
     }
 }
 
-impl Stats for DEMA {
+impl Stats for Dema {
     /// Obtains the total sum of the buffer for DEMA.
     fn sum(&self) -> Num {
         self.buffer.sum()

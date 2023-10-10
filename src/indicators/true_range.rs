@@ -49,7 +49,7 @@ impl Close for TRData {
 /// * `L` = lowest value for the data point / candle.
 /// * `C` = last close prior to this data point.
 #[derive(Debug)]
-pub struct TR {
+pub struct Tr {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// TR's current value.
@@ -60,7 +60,7 @@ pub struct TR {
     buffer: Buffer,
 }
 
-impl TR {
+impl Tr {
     /// Creates a new TR with the supplied period and initial data.
     ///
     /// Required: The initial data must contain at least 2 data points.
@@ -123,21 +123,21 @@ impl TR {
     }
 }
 
-impl Period for TR {
+impl Period for Tr {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for TR {
+impl Value for Tr {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl<T> Next<&T> for TR
+impl<T> Next<&T> for Tr
 where
     T: High + Low + Close,
 {
@@ -158,7 +158,7 @@ where
     }
 }
 
-impl Next<(Num, Num, Num)> for TR {
+impl Next<(Num, Num, Num)> for Tr {
     /// Next Value for the TR.
     type Output = Num;
 
@@ -181,7 +181,7 @@ impl Next<(Num, Num, Num)> for TR {
     }
 }
 
-impl Stats for TR {
+impl Stats for Tr {
     /// Obtains the total sum of the buffer for TR.
     fn sum(&self) -> Num {
         self.buffer.sum()

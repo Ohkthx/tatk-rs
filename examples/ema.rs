@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use a EMA.
-use tatk::indicators::EMA;
+use tatk::indicators::Ema;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,7 +11,7 @@ fn main() {
     println!("Period: {}", period);
 
     // Create the EMA.
-    let mut ema = match EMA::new(period, &data[..data.len() - 1]) {
+    let mut ema = match Ema::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

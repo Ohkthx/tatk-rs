@@ -9,7 +9,7 @@
 //! * `TR` = true range
 //! * `n` = period
 use super::true_range::TRData;
-use super::TR;
+use super::Tr;
 use crate::traits::{Close, High, Low, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
@@ -24,18 +24,18 @@ use crate::{Buffer, Num, TAError};
 /// * `TR` = true range
 /// * `n` = period
 #[derive(Debug)]
-pub struct ATR {
+pub struct Atr {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// ATR's current value.
     value: Num,
     /// True Range used for calculations.
-    true_range: TR,
+    true_range: Tr,
     /// Holds `period` amount of generated ATRs.
     buffer: Buffer,
 }
 
-impl ATR {
+impl Atr {
     /// Creates a new ATR with the supplied period and initial data.
     ///
     /// Required: The initial data must contain at least 2 data points.
@@ -56,7 +56,7 @@ impl ATR {
         }
 
         // Create the first `n` true ranges.
-        let mut tr = match TR::new(period, &data[..(period + 1)]) {
+        let mut tr = match Tr::new(period, &data[..(period + 1)]) {
             Ok(v) => v,
             Err(error) => return Err(error),
         };
@@ -92,21 +92,21 @@ impl ATR {
     }
 }
 
-impl Period for ATR {
+impl Period for Atr {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for ATR {
+impl Value for Atr {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl<T> Next<T> for ATR
+impl<T> Next<T> for Atr
 where
     T: High + Low + Close,
 {
@@ -130,7 +130,7 @@ where
     }
 }
 
-impl Next<(Num, Num, Num)> for ATR {
+impl Next<(Num, Num, Num)> for Atr {
     /// Next Value for the ATR.
     type Output = Num;
 
@@ -153,7 +153,7 @@ impl Next<(Num, Num, Num)> for ATR {
     }
 }
 
-impl Stats for ATR {
+impl Stats for Atr {
     /// Obtains the total sum of the buffer for ATR.
     fn sum(&self) -> Num {
         self.buffer.sum()

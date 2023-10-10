@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use Bollinger Bands (BB).
-use tatk::indicators::{BBands, EMA};
+use tatk::indicators::{Bbands, Ema};
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,12 +11,12 @@ fn main() {
     println!("Period: {}", period);
 
     // Use EMA as the line instead of the default EMA.
-    let ema = match EMA::new(period, &data[..data.len() - 1]) {
+    let ema = match Ema::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
 
-    let mut bbands = match BBands::with_line(ema, 2.0) {
+    let mut bbands = match Bbands::with_line(ema, 2.0) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

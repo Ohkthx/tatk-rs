@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use a MACD.
-use tatk::indicators::MACD;
+use tatk::indicators::Macd;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -14,7 +14,7 @@ fn main() {
     println!("short: {}, long: {}, signal: {}", short, long, signal);
 
     // Create the MACD.
-    let mut macd = match MACD::new(short, long, signal, &data[..data.len() - 1]) {
+    let mut macd = match Macd::new(short, long, signal, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

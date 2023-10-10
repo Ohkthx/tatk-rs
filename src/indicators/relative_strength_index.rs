@@ -32,7 +32,7 @@ use crate::{Buffer, Num, TAError};
 /// * `x1` = Most recent gain.
 /// * `y1` = Most recent loss.
 #[derive(Debug)]
-pub struct RSI {
+pub struct Rsi {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// RSI's current value.
@@ -51,7 +51,7 @@ pub struct RSI {
     buffer: Buffer,
 }
 
-impl RSI {
+impl Rsi {
     /// Creates a new RSI with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -179,21 +179,21 @@ impl RSI {
     }
 }
 
-impl Period for RSI {
+impl Period for Rsi {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for RSI {
+impl Value for Rsi {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for RSI {
+impl Next<Num> for Rsi {
     /// Value for the next RSI.
     type Output = Num;
 
@@ -226,7 +226,7 @@ impl Next<Num> for RSI {
     }
 }
 
-impl<T> Next<T> for RSI
+impl<T> Next<T> for Rsi
 where
     T: AsValue,
 {
@@ -243,7 +243,7 @@ where
     }
 }
 
-impl Stats for RSI {
+impl Stats for Rsi {
     /// Obtains the total sum of the buffer for RSI.
     fn sum(&self) -> Num {
         self.buffer.sum()

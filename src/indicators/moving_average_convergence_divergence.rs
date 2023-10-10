@@ -10,7 +10,7 @@
 //!
 //! * `x` = Short EMA of period `n`
 //! * `y` = Long EMA of period `n`
-use super::EMA;
+use super::Ema;
 use crate::traits::{AsValue, Next, Period, Value};
 use crate::{Num, TAError};
 
@@ -27,20 +27,20 @@ use crate::{Num, TAError};
 /// * `x` = Short EMA of period `n`
 /// * `y` = Long EMA of period `n`
 #[derive(Debug)]
-pub struct MACD {
+pub struct Macd {
     /// MACD's current value.
     value: Num,
     /// Short EMA
-    ema_short: EMA,
+    ema_short: Ema,
     /// Long EMA
-    ema_long: EMA,
+    ema_long: Ema,
     /// Signal Line, EMA of MACD values.
-    ema_signal: EMA,
+    ema_signal: Ema,
     /// If the MACD crossed the signal.
     crossed: bool,
 }
 
-impl MACD {
+impl Macd {
     /// Creates a new MACD with the supplied period and initial data. Often the short line is
     /// period of 12, long is a period of 26, and signal is period of 9.
     ///
@@ -69,13 +69,13 @@ impl MACD {
         }
 
         // Build short EMA up to the long.
-        let mut ema_short = match EMA::new(short, &data[..long]) {
+        let mut ema_short = match Ema::new(short, &data[..long]) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
 
         // Build long EMA.
-        let mut ema_long = match EMA::new(long, &data[..long]) {
+        let mut ema_long = match Ema::new(long, &data[..long]) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -92,7 +92,7 @@ impl MACD {
         }
 
         // Build signal EMA of MACDs.
-        let ema_signal = match EMA::new(signal, &signals) {
+        let ema_signal = match Ema::new(signal, &signals) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -127,21 +127,21 @@ impl MACD {
     }
 }
 
-impl Period for MACD {
+impl Period for Macd {
     /// Period (window) for the signal.
     fn period(&self) -> usize {
         self.ema_signal.period()
     }
 }
 
-impl Value for MACD {
+impl Value for Macd {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for MACD {
+impl Next<Num> for Macd {
     /// Signal, Short, and Long values,
     type Output = (Num, Num, Num);
 
@@ -177,7 +177,7 @@ impl Next<Num> for MACD {
     }
 }
 
-impl<T> Next<T> for MACD
+impl<T> Next<T> for Macd
 where
     T: AsValue,
 {

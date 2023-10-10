@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use a DEMA.
-use tatk::indicators::DEMA;
+use tatk::indicators::Dema;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,7 +11,7 @@ fn main() {
     println!("Period: {}", period);
 
     // Create the DEMA.
-    let mut dema = match DEMA::new(period, &data[..data.len() - 1]) {
+    let mut dema = match Dema::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };

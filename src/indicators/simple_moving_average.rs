@@ -6,7 +6,7 @@ use crate::{Buffer, Num, TAError};
 
 /// Simple Moving Average (SMA), the average within a period that moves as data is added.
 #[derive(Debug)]
-pub struct SMA {
+pub struct Sma {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// SMA's current value.
@@ -15,7 +15,7 @@ pub struct SMA {
     buffer: Buffer,
 }
 
-impl SMA {
+impl Sma {
     /// Creates a new SMA with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -46,21 +46,21 @@ impl SMA {
     }
 }
 
-impl Period for SMA {
+impl Period for Sma {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for SMA {
+impl Value for Sma {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for SMA {
+impl Next<Num> for Sma {
     /// Next Value for the SMA.
     type Output = Num;
 
@@ -79,7 +79,7 @@ impl Next<Num> for SMA {
     }
 }
 
-impl<T> Next<T> for SMA
+impl<T> Next<T> for Sma
 where
     T: AsValue,
 {
@@ -96,7 +96,7 @@ where
     }
 }
 
-impl Stats for SMA {
+impl Stats for Sma {
     /// Obtains the total sum of the buffer for SMA.
     fn sum(&self) -> Num {
         self.buffer.sum()

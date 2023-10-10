@@ -30,7 +30,7 @@ use crate::{Buffer, Num, TAError};
 /// * `μ` is the mean of the set.
 /// * `∑` is the sum.
 #[derive(Debug)]
-pub struct STDEV {
+pub struct Stdev {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// STDEV's current value.
@@ -41,7 +41,7 @@ pub struct STDEV {
     is_sample: bool,
 }
 
-impl STDEV {
+impl Stdev {
     /// Creates a new standard deviation with the supplied period and initial data.
     ///
     /// Required: The initial data must be at least of equal size/length or greater than the period.
@@ -79,21 +79,21 @@ impl STDEV {
     }
 }
 
-impl Period for STDEV {
+impl Period for Stdev {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for STDEV {
+impl Value for Stdev {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for STDEV {
+impl Next<Num> for Stdev {
     /// Value for the next STDEV.
     type Output = Num;
 
@@ -112,7 +112,7 @@ impl Next<Num> for STDEV {
     }
 }
 
-impl<T> Next<T> for STDEV
+impl<T> Next<T> for Stdev
 where
     T: AsValue,
 {

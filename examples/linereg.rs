@@ -1,5 +1,5 @@
 //! Demonstrates how to initialize and use a LineReg.
-use tatk::indicators::LineReg;
+use tatk::indicators::Linereg;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -11,7 +11,7 @@ fn main() {
     println!("Period: {}", period);
 
     // Create the LineReg.
-    let mut linereg = match LineReg::new(period, &data[..data.len() - 1]) {
+    let mut linereg = match Linereg::new(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
