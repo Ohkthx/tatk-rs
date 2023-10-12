@@ -13,6 +13,13 @@
 use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
+#[macro_export]
+macro_rules! ema {
+    ($period:expr, $data:expr) => {
+        $crate::indicators::Ema::new($period, $data)
+    };
+}
+
 /// Exponential Moving Average (EMA). More recent data is weighted heavier than older data.
 ///
 /// # Formula

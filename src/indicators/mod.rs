@@ -19,7 +19,7 @@ pub use average_true_range::Atr;
 pub use bollinger_bands::Bbands;
 pub use cross::Cross;
 pub use double_exponential_moving_average::Dema;
-pub use exponential_moving_average::Ema;
+pub use exponential_moving_average::*;
 pub use linear_regression::Linereg;
 pub use mcginley_dynamic::Mdi;
 pub use moving_average_convergence_divergence::Macd;
