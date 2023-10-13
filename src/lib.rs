@@ -1,4 +1,4 @@
-//! Technical Analysus Tools written in Rust.
+//! Technical Analysis Tools written in Rust.
 //!
 //! This crate is used to an analyze data from samples using common indicators to generate signals.
 pub mod indicators;

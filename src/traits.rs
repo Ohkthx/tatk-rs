@@ -1,5 +1,4 @@
 //! Traits for both indicators and user-defined data types.
-//!
 use crate::Num;
 
 /// Indicator: Statistics for the indicator.

@@ -13,6 +13,12 @@
 use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
+/// Initializes an EMA.
+///
+/// # Arguments
+///
+/// * `period` - Size of the period / window used.
+/// * `data` - Array of values to create the EMA from.
 #[macro_export]
 macro_rules! ema {
     ($period:expr, $data:expr) => {
