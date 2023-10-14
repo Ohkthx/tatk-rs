@@ -1,5 +1,5 @@
-//! Demonstrates how to initialize and use a SMA.
-use tatk::indicators::Sma;
+//! Demonstrates how to initialize and use a Simple Moving Average.
+use tatk::sma;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -10,8 +10,8 @@ fn main() {
     println!("Data (total): {:?}", data.len());
     println!("Period: {}", period);
 
-    // Create the SMA.
-    let mut sma = match Sma::new(period, &data[..data.len() - 1]) {
+    // Create the Simple Moving Average.
+    let mut indicator = match sma!(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
@@ -19,6 +19,10 @@ fn main() {
     // Extract last data point.
     let last_data = data[data.len() - 1];
 
-    println!("\nSMA: {}", sma.value());
-    println!("Adding {}. New SMA: {}", last_data, sma.next(last_data));
+    println!("\nSimple Moving Average: {}", indicator.value());
+    println!(
+        "Adding {}. New SMA: {}",
+        last_data,
+        indicator.next(last_data)
+    );
 }

@@ -32,7 +32,7 @@ use crate::{Buffer, Num, TAError};
 /// * `x1` = Most recent gain.
 /// * `y1` = Most recent loss.
 #[derive(Debug)]
-pub struct Rsi {
+pub struct RelativeStrengthIndex {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// RSI's current value.
@@ -51,22 +51,29 @@ pub struct Rsi {
     buffer: Buffer,
 }
 
-impl Rsi {
+impl RelativeStrengthIndex {
     /// Creates a new RSI with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period + 1` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the RSI from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        if period + 1 > data.len() {
+        // Check we can calculate Relative Strength Index.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate relative strength index",
+            )));
+        } else if data.len() < period + 1 {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period",
             )));
-        } else if period == 0 {
-            return Err(TAError::InvalidSize(String::from("period cannot be 0")));
         }
 
         let mut gains: Num = 0.0;
@@ -179,21 +186,21 @@ impl Rsi {
     }
 }
 
-impl Period for Rsi {
+impl Period for RelativeStrengthIndex {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Rsi {
+impl Value for RelativeStrengthIndex {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for Rsi {
+impl Next<Num> for RelativeStrengthIndex {
     /// Value for the next RSI.
     type Output = Num;
 
@@ -226,7 +233,7 @@ impl Next<Num> for Rsi {
     }
 }
 
-impl<T> Next<T> for Rsi
+impl<T> Next<T> for RelativeStrengthIndex
 where
     T: AsValue,
 {
@@ -243,7 +250,7 @@ where
     }
 }
 
-impl Stats for Rsi {
+impl Stats for RelativeStrengthIndex {
     /// Obtains the total sum of the buffer for RSI.
     fn sum(&self) -> Num {
         self.buffer.sum()

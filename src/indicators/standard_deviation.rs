@@ -30,7 +30,7 @@ use crate::{Buffer, Num, TAError};
 /// * `μ` is the mean of the set.
 /// * `∑` is the sum.
 #[derive(Debug)]
-pub struct Stdev {
+pub struct StandardDeviation {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// STDEV's current value.
@@ -41,19 +41,27 @@ pub struct Stdev {
     is_sample: bool,
 }
 
-impl Stdev {
+impl StandardDeviation {
     /// Creates a new standard deviation with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 0.
+    /// * Data must have at least `period` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the STDEV from.
     /// * `is_sample` - If the data is a Sample or Population, default should be True.
     pub fn new(period: usize, data: &[Num], is_sample: bool) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period {
+        // Check we can calculate Standard Deviation.
+        if period < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 1 to calculate standard deviation",
+            )));
+        } else if data.len() < period {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -79,21 +87,21 @@ impl Stdev {
     }
 }
 
-impl Period for Stdev {
+impl Period for StandardDeviation {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Stdev {
+impl Value for StandardDeviation {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for Stdev {
+impl Next<Num> for StandardDeviation {
     /// Value for the next STDEV.
     type Output = Num;
 
@@ -112,7 +120,7 @@ impl Next<Num> for Stdev {
     }
 }
 
-impl<T> Next<T> for Stdev
+impl<T> Next<T> for StandardDeviation
 where
     T: AsValue,
 {

@@ -13,19 +13,6 @@
 use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
-/// Initializes an EMA.
-///
-/// # Arguments
-///
-/// * `period` - Size of the period / window used.
-/// * `data` - Array of values to create the EMA from.
-#[macro_export]
-macro_rules! ema {
-    ($period:expr, $data:expr) => {
-        $crate::indicators::Ema::new($period, $data)
-    };
-}
-
 /// Exponential Moving Average (EMA). More recent data is weighted heavier than older data.
 ///
 /// # Formula
@@ -38,7 +25,7 @@ macro_rules! ema {
 /// * `k` = 2 * (n + 1)
 /// * `n` = period
 #[derive(Debug)]
-pub struct Ema {
+pub struct ExponentialMovingAverage {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// Current value for the EMA.
@@ -49,18 +36,26 @@ pub struct Ema {
     k: Num,
 }
 
-impl Ema {
+impl ExponentialMovingAverage {
     /// Creates a new EMA with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 0.
+    /// * Data must have at least `period` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the EMA from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period {
+        // Check we can calculate EMA.
+        if period < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 1 to calculate exponential moving average",
+            )));
+        } else if data.len() < period {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -112,21 +107,21 @@ impl Ema {
     }
 }
 
-impl Period for Ema {
+impl Period for ExponentialMovingAverage {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Ema {
+impl Value for ExponentialMovingAverage {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for Ema {
+impl Next<Num> for ExponentialMovingAverage {
     /// Next Value for the EMA.
     type Output = Num;
 
@@ -143,7 +138,7 @@ impl Next<Num> for Ema {
     }
 }
 
-impl<T> Next<T> for Ema
+impl<T> Next<T> for ExponentialMovingAverage
 where
     T: AsValue,
 {
@@ -160,7 +155,7 @@ where
     }
 }
 
-impl Stats for Ema {
+impl Stats for ExponentialMovingAverage {
     /// Obtains the total sum of the buffer for EMA.
     fn sum(&self) -> Num {
         self.buffer.sum()

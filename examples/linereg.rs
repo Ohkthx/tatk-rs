@@ -1,5 +1,5 @@
-//! Demonstrates how to initialize and use a LineReg.
-use tatk::indicators::Linereg;
+//! Demonstrates how to initialize and use a Linear Regression.
+use tatk::lr;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -10,8 +10,8 @@ fn main() {
     println!("Data (total): {:?}", data.len());
     println!("Period: {}", period);
 
-    // Create the LineReg.
-    let mut linereg = match Linereg::new(period, &data[..data.len() - 1]) {
+    // Create the Linear Regression indicator.
+    let mut indicator = match lr!(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
@@ -19,13 +19,13 @@ fn main() {
     // Extract last data point.
     let last_data = data[data.len() - 1];
 
-    println!("\nbest fit: {}", linereg.value());
+    println!("\nbest fit: {}", indicator.value());
     println!(
         "Adding {}. New best fit: {}, r_squared: {:.4}",
         last_data,
-        linereg.next(last_data),
-        linereg.r_sq()
+        indicator.next(last_data),
+        indicator.r_sq()
     );
 
-    println!("Forecasted next: {}", linereg.forecast(1));
+    println!("Forecasted next: {}", indicator.forecast(1));
 }

@@ -1,17 +1,17 @@
-//! Linear Regression (LineReg), creates a best fit line.
+//! Linear Regression (LR / LineReg), creates a best fit line.
 //!
 //! Creates a line that best fits a period of data using the least squares approach.
 use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
-/// Linear Regression (LineReg), creates a best fit line.
+/// Linear Regression (LR / LineReg), creates a best fit line.
 ///
 /// Creates a line that best fits a period of data using the least squares approach.
 #[derive(Debug)]
-pub struct Linereg {
+pub struct LinearRegression {
     /// Size of the period (window) in which data is looked at.
     period: usize,
-    /// LineReg's current value.
+    /// LR's current value.
     value: Num,
     /// Stasis values.
     values: Buffer,
@@ -27,24 +27,28 @@ pub struct Linereg {
     slope: Num,
 }
 
-impl Linereg {
-    /// Creates a new LineReg with the supplied period and initial data.
+impl LinearRegression {
+    /// Creates a new Linear Regression line with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
-    /// * `data` - Array of values to create the LineReg from.
+    /// * `data` - Array of values to create the LR from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period {
+        // Check we can calculate Linear Regression.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate linear regression",
+            )));
+        } else if data.len() < period {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
-            )));
-        } else if period < 2 {
-            return Err(TAError::InvalidSize(String::from(
-                "period must be 2 or more",
             )));
         }
 
@@ -159,25 +163,25 @@ impl Linereg {
     }
 }
 
-impl Period for Linereg {
+impl Period for LinearRegression {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Linereg {
+impl Value for LinearRegression {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for Linereg {
-    /// Next Value for the LineReg.
+impl Next<Num> for LinearRegression {
+    /// Next Value for the LR.
     type Output = Num;
 
-    /// Supply an additional value to recalculate a new LineReg.
+    /// Supply an additional value to recalculate a new LR.
     ///
     /// # Arguments
     ///
@@ -198,14 +202,14 @@ impl Next<Num> for Linereg {
     }
 }
 
-impl<T> Next<T> for Linereg
+impl<T> Next<T> for LinearRegression
 where
     T: AsValue,
 {
-    /// Next Value for the LineReg.
+    /// Next Value for the LR.
     type Output = Num;
 
-    /// Supply an additional value to recalculate a new LineReg.
+    /// Supply an additional value to recalculate a new LR.
     ///
     /// # Arguments
     ///
@@ -215,13 +219,13 @@ where
     }
 }
 
-impl Stats for Linereg {
-    /// Obtains the total sum of the buffer for LineReg.
+impl Stats for LinearRegression {
+    /// Obtains the total sum of the buffer for LR.
     fn sum(&self) -> Num {
         self.buffer.sum()
     }
 
-    /// Mean for the period of the LineReg.
+    /// Mean for the period of the LR.
     fn mean(&self) -> Num {
         self.buffer.mean()
     }

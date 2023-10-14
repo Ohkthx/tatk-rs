@@ -1,5 +1,5 @@
-//! Demonstrates how to initialize and use a DEMA.
-use tatk::indicators::Dema;
+//! Demonstrates how to initialize and use a Double Exponential Moving Average.
+use tatk::dema;
 use tatk::test_data::TestData;
 use tatk::traits::{Next, Value};
 
@@ -10,8 +10,8 @@ fn main() {
     println!("Data (total): {:?}", data.len());
     println!("Period: {}", period);
 
-    // Create the DEMA.
-    let mut dema = match Dema::new(period, &data[..data.len() - 1]) {
+    // Create the Double Exponential Moving Average.
+    let mut indicator = match dema!(period, &data[..data.len() - 1]) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
@@ -19,6 +19,10 @@ fn main() {
     // Extract last data point.
     let last_data = data[data.len() - 1];
 
-    println!("\nDEMA: {}", dema.value());
-    println!("Adding {}. New DEMA: {}", last_data, dema.next(last_data));
+    println!("\nDouble Exponential Moving Average: {}", indicator.value());
+    println!(
+        "Adding {}. New DEMA: {}",
+        last_data,
+        indicator.next(last_data)
+    );
 }

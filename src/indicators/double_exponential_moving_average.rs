@@ -11,7 +11,7 @@
 //! * `x` = \[EMA(n)\] Current EMA of period `n`
 //! * `y` = \[EMA(EMA(n))\] EMA of EMA(n)
 //! * `n` = period
-use super::Ema;
+use super::ExponentialMovingAverage;
 use crate::traits::{AsValue, Next, Period, Stats, Value};
 use crate::{Buffer, Num, TAError};
 
@@ -29,38 +29,46 @@ use crate::{Buffer, Num, TAError};
 /// * `y` = \[EMA(EMA(n))\] EMA of EMA(n)
 /// * `n` = period
 #[derive(Debug)]
-pub struct Dema {
+pub struct DoubleExponentialMovingAverage {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// DEMA's current value.
     value: Num,
     /// EMA(n), EMA of values / samples provided.
-    ema_n: Ema,
+    ema_n: ExponentialMovingAverage,
     /// EMA(EMA(n)), EMA of EMA(n).
-    ema_ema_n: Ema,
+    ema_ema_n: ExponentialMovingAverage,
     /// Holds `period` amount of generated DEMAs.
     buffer: Buffer,
 }
 
-impl Dema {
-    /// Creates a new DEMA with the supplied period and initial data.
+impl DoubleExponentialMovingAverage {
+    /// Creates a new Double Exponential Moving Average with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
+    ///
+    /// * Period must be greater than 0.
+    /// * Data must have at least `(period * 2) - 1` elements.
     ///
     /// # Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the DEMA from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < (period * 2) - 1 {
+        // Check we can calculate Double Exponential Moving Average.
+        if period < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 1 to calculate double exponential moving average",
+            )));
+        } else if data.len() < (period * 2) - 1 {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
         }
 
         // Build EMA(n) from first 'n' samples (period amount).
-        let mut ema_n = match Ema::new(period, &data[..period]) {
+        let mut ema_n = match ExponentialMovingAverage::new(period, &data[..period]) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -72,7 +80,7 @@ impl Dema {
         }
 
         // EMA of EMA(n)
-        let mut ema_ema_n = match Ema::new(period, &n_ema_n) {
+        let mut ema_ema_n = match ExponentialMovingAverage::new(period, &n_ema_n) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -103,21 +111,21 @@ impl Dema {
     }
 }
 
-impl Period for Dema {
+impl Period for DoubleExponentialMovingAverage {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Dema {
+impl Value for DoubleExponentialMovingAverage {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for Dema {
+impl Next<Num> for DoubleExponentialMovingAverage {
     /// Next Value for the DEMA.
     type Output = Num;
 
@@ -136,7 +144,7 @@ impl Next<Num> for Dema {
     }
 }
 
-impl<T> Next<T> for Dema
+impl<T> Next<T> for DoubleExponentialMovingAverage
 where
     T: AsValue,
 {
@@ -153,7 +161,7 @@ where
     }
 }
 
-impl Stats for Dema {
+impl Stats for DoubleExponentialMovingAverage {
     /// Obtains the total sum of the buffer for DEMA.
     fn sum(&self) -> Num {
         self.buffer.sum()

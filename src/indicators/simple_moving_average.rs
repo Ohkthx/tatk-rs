@@ -6,7 +6,7 @@ use crate::{Buffer, Num, TAError};
 
 /// Simple Moving Average (SMA), the average within a period that moves as data is added.
 #[derive(Debug)]
-pub struct Sma {
+pub struct SimpleMovingAverage {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// SMA's current value.
@@ -15,18 +15,26 @@ pub struct Sma {
     buffer: Buffer,
 }
 
-impl Sma {
+impl SimpleMovingAverage {
     /// Creates a new SMA with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 0.
+    /// * Data must have at least `period` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the SMA from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period {
+        // Check we can calculate SMA.
+        if period < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 1 to calculate simple moving average",
+            )));
+        } else if data.len() < period {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -46,21 +54,21 @@ impl Sma {
     }
 }
 
-impl Period for Sma {
+impl Period for SimpleMovingAverage {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Sma {
+impl Value for SimpleMovingAverage {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for Sma {
+impl Next<Num> for SimpleMovingAverage {
     /// Next Value for the SMA.
     type Output = Num;
 
@@ -79,7 +87,7 @@ impl Next<Num> for Sma {
     }
 }
 
-impl<T> Next<T> for Sma
+impl<T> Next<T> for SimpleMovingAverage
 where
     T: AsValue,
 {
@@ -96,7 +104,7 @@ where
     }
 }
 
-impl Stats for Sma {
+impl Stats for SimpleMovingAverage {
     /// Obtains the total sum of the buffer for SMA.
     fn sum(&self) -> Num {
         self.buffer.sum()

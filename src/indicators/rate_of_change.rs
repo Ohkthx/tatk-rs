@@ -22,7 +22,7 @@ use crate::{Buffer, Num, TAError};
 /// * `x` = current value (most recent)
 /// * `y` = value `n` periods prior.
 #[derive(Debug)]
-pub struct Roc {
+pub struct RateOfChange {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// ROC's current value.
@@ -33,18 +33,26 @@ pub struct Roc {
     buffer: Buffer,
 }
 
-impl Roc {
-    /// Creates a new ROC with the supplied period and initial data.
+impl RateOfChange {
+    /// Creates a new Rate of Change with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period + 1` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the ROC from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period + 1 {
+        // Check we can calculate Rate of Change.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate rate of change",
+            )));
+        } else if data.len() < period + 1 {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -93,21 +101,21 @@ impl Roc {
     }
 }
 
-impl Period for Roc {
+impl Period for RateOfChange {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Roc {
+impl Value for RateOfChange {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for Roc {
+impl Next<Num> for RateOfChange {
     /// Next Value for the ROC.
     type Output = Num;
 
@@ -125,7 +133,7 @@ impl Next<Num> for Roc {
     }
 }
 
-impl<T> Next<T> for Roc
+impl<T> Next<T> for RateOfChange
 where
     T: AsValue,
 {
@@ -142,7 +150,7 @@ where
     }
 }
 
-impl Stats for Roc {
+impl Stats for RateOfChange {
     /// Obtains the total sum of the buffer for ROC.
     fn sum(&self) -> Num {
         self.buffer.sum()

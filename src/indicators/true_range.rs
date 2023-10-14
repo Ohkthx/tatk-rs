@@ -14,24 +14,24 @@ use crate::{Buffer, Num, TAError};
 
 /// Used for conversions. Holds High (0), Low (1), and Close (2) values.
 #[derive(Copy, Clone)]
-pub(crate) struct TRData(pub Num, pub Num, pub Num);
+pub(crate) struct TrueRangeData(pub Num, pub Num, pub Num);
 
 // Highest value.
-impl High for TRData {
+impl High for TrueRangeData {
     fn high(&self) -> Num {
         self.0
     }
 }
 
 // Lowest value.
-impl Low for TRData {
+impl Low for TrueRangeData {
     fn low(&self) -> Num {
         self.1
     }
 }
 
 // Closing value.
-impl Close for TRData {
+impl Close for TrueRangeData {
     fn close(&self) -> Num {
         self.2
     }
@@ -49,7 +49,7 @@ impl Close for TRData {
 /// * `L` = lowest value for the data point / candle.
 /// * `C` = last close prior to this data point.
 #[derive(Debug)]
-pub struct Tr {
+pub struct TrueRange {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// TR's current value.
@@ -60,12 +60,15 @@ pub struct Tr {
     buffer: Buffer,
 }
 
-impl Tr {
+impl TrueRange {
     /// Creates a new TR with the supplied period and initial data.
     ///
-    /// Required: The initial data must contain at least 2 data points.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 0.
+    /// * Data must have at least `period + 1` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the TR from.
@@ -73,8 +76,13 @@ impl Tr {
     where
         T: Close + Low + High,
     {
-        // Make sure we have enough data. Requires additional data point for `last_close`
-        if data.len() < period + 1 {
+        // Check we can calculate True Range.
+        if period < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 1 to calculate true range",
+            )));
+        } else if data.len() < period + 1 {
+            // Make sure we have enough data. Requires additional data point for `last_close`
             return Err(TAError::InvalidData(String::from(
                 "not enough data to calculate true range",
             )));
@@ -123,21 +131,21 @@ impl Tr {
     }
 }
 
-impl Period for Tr {
+impl Period for TrueRange {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Tr {
+impl Value for TrueRange {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl<T> Next<&T> for Tr
+impl<T> Next<&T> for TrueRange
 where
     T: High + Low + Close,
 {
@@ -158,7 +166,7 @@ where
     }
 }
 
-impl Next<(Num, Num, Num)> for Tr {
+impl Next<(Num, Num, Num)> for TrueRange {
     /// Next Value for the TR.
     type Output = Num;
 
@@ -171,7 +179,7 @@ impl Next<(Num, Num, Num)> for Tr {
     ///     * 1 = Low
     ///     * 2 = Close
     fn next(&mut self, value: (Num, Num, Num)) -> Self::Output {
-        let v = TRData {
+        let v = TrueRangeData {
             0: value.0, // High
             1: value.1, // Low
             2: value.2, // Close
@@ -181,7 +189,7 @@ impl Next<(Num, Num, Num)> for Tr {
     }
 }
 
-impl Stats for Tr {
+impl Stats for TrueRange {
     /// Obtains the total sum of the buffer for TR.
     fn sum(&self) -> Num {
         self.buffer.sum()

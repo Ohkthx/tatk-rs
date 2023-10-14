@@ -24,7 +24,7 @@ use crate::{Buffer, Num, TAError};
 /// * `k` = modifies the period, normally 0.6
 /// * `n` = period
 #[derive(Debug)]
-pub struct Mdi {
+pub struct McGinleyDynamic {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// Constant for period modification.
@@ -35,19 +35,27 @@ pub struct Mdi {
     buffer: Buffer,
 }
 
-impl Mdi {
-    /// Creates a new MD with the supplied period and initial data.
+impl McGinleyDynamic {
+    /// Creates a new McGinley Dynamic with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period + 1` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the MD from.
     /// * `k` - Constant used to modify selected period. Default: 0.6
     pub fn new(period: usize, data: &[Num], k: Num) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period + 1 {
+        // Check we can calculate McGinley Dynamic Indicator.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate McGinely dynamic",
+            )));
+        } else if data.len() < period + 1 {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -91,21 +99,21 @@ impl Mdi {
     }
 }
 
-impl Period for Mdi {
+impl Period for McGinleyDynamic {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Mdi {
+impl Value for McGinleyDynamic {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for Mdi {
+impl Next<Num> for McGinleyDynamic {
     /// Next Value for the MD.
     type Output = Num;
 
@@ -123,7 +131,7 @@ impl Next<Num> for Mdi {
     }
 }
 
-impl<T> Next<T> for Mdi
+impl<T> Next<T> for McGinleyDynamic
 where
     T: AsValue,
 {
@@ -140,7 +148,7 @@ where
     }
 }
 
-impl Stats for Mdi {
+impl Stats for McGinleyDynamic {
     /// Obtains the total sum of the buffer for MD.
     fn sum(&self) -> Num {
         self.buffer.sum()

@@ -1,4 +1,4 @@
-//! Bollinger Bands (BBands)
+//! Bollinger Bands (BB / BBands)
 //!
 //! # Formula
 //!
@@ -11,7 +11,7 @@
 //! * `SMA` is the moving average of a period.
 //! * `σ` is the standard deviation of the period.
 //! * `d` is the distance from the SMA to calculate.
-use super::Sma;
+use super::SimpleMovingAverage;
 use crate::traits::{Next, Period, Stats, Value};
 use crate::{Num, TAError};
 
@@ -29,7 +29,7 @@ use crate::{Num, TAError};
 /// * `σ` is the standard deviation of the period.
 /// * `d` is the distance from the SMA to calculate.
 #[derive(Debug)]
-pub struct Bbands<L>
+pub struct BollingerBands<L>
 where
     L: Value + Period + Stats,
 {
@@ -45,19 +45,22 @@ where
     upper: Num,
 }
 
-impl Bbands<Sma> {
+impl BollingerBands<SimpleMovingAverage> {
     /// Creates a new Bollinger Band with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 0.
+    /// * Data must have at least `period` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the BBands from.
     /// * `distance` - Distance the bands (in standard deviations) from the SMA. default 2.0
     pub fn new(period: usize, data: &[Num], distance: Num) -> Result<Self, TAError> {
         // SMA used for the Bollinger Band.
-        let sma = match Sma::new(period, data) {
+        let sma = match SimpleMovingAverage::new(period, data) {
             Ok(v) => v,
             Err(error) => return Err(error),
         };
@@ -77,17 +80,17 @@ impl Bbands<Sma> {
     }
 }
 
-impl<L> Bbands<L>
+impl<L> BollingerBands<L>
 where
     L: Value + Period + Stats,
 {
-    /// Creates BBands using an alternative line, such as EMA.
+    /// Creates Bollinger Bands using an alternative line, such as an EMA.
     ///
     /// # Arguments
     ///
     /// * `line` - `Line` to use as the middle value.
     /// * `distance` - Distance the bands (in standard deviations) from the SMA. default 2.0
-    pub fn with_line(line: L, distance: Num) -> Result<Bbands<L>, TAError> {
+    pub fn with_line(line: L, distance: Num) -> Result<BollingerBands<L>, TAError> {
         let distance = distance.abs();
         let stdev = line.stdev(true);
         let lower = line.value() - (stdev * distance);
@@ -118,7 +121,7 @@ where
     }
 }
 
-impl<L> Period for Bbands<L>
+impl<L> Period for BollingerBands<L>
 where
     L: Value + Period + Stats,
 {
@@ -128,7 +131,7 @@ where
     }
 }
 
-impl<L> Value for Bbands<L>
+impl<L> Value for BollingerBands<L>
 where
     L: Value + Period + Stats,
 {
@@ -138,7 +141,7 @@ where
     }
 }
 
-impl<L> Next<Num> for Bbands<L>
+impl<L> Next<Num> for BollingerBands<L>
 where
     L: Value + Period + Stats + Next<Num>,
 {

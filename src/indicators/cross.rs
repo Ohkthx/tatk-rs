@@ -34,7 +34,7 @@ where
     ///
     /// Golden Cross: `short_line` (reactive) crosses above `long_line` (historic).
     ///
-    /// # Arguments
+    /// ## Arguments
     ///
     /// * `short_line` - Shorter or more reactive line.
     /// * `long_line` - Longer or more historic line.

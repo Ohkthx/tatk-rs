@@ -46,7 +46,7 @@ impl Volume for Data {
 /// * `y` = last close
 /// * `z` = current volume
 #[derive(Debug)]
-pub struct Obv {
+pub struct OnBalanceVolume {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// OBV's current value.
@@ -57,12 +57,15 @@ pub struct Obv {
     buffer: Buffer,
 }
 
-impl Obv {
-    /// Creates a new OBV with the supplied period and initial data.
+impl OnBalanceVolume {
+    /// Creates a new On-Balance Volume with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - History of values to keep.
     /// * `data` - Array of values to create the OBV from.
@@ -70,8 +73,13 @@ impl Obv {
     where
         T: Close + Volume,
     {
-        // Make sure we have enough data.
-        if data.len() < period {
+        // Check we can calculate On-Balance Volume.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate on-balance volume",
+            )));
+        } else if data.len() < period {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for history period provided",
             )));
@@ -125,21 +133,21 @@ impl Obv {
     }
 }
 
-impl Period for Obv {
+impl Period for OnBalanceVolume {
     /// Period (window) for the history.
     fn period(&self) -> usize {
         self.period
     }
 }
 
-impl Value for Obv {
+impl Value for OnBalanceVolume {
     /// Current and most recent value calculated.
     fn value(&self) -> Num {
         self.value
     }
 }
 
-impl<T> Next<T> for Obv
+impl<T> Next<T> for OnBalanceVolume
 where
     T: Close + Volume,
 {
@@ -161,7 +169,7 @@ where
     }
 }
 
-impl Next<(Num, Num)> for Obv {
+impl Next<(Num, Num)> for OnBalanceVolume {
     /// Next Value for the OBV.
     type Output = Num;
 
@@ -182,7 +190,7 @@ impl Next<(Num, Num)> for Obv {
     }
 }
 
-impl Stats for Obv {
+impl Stats for OnBalanceVolume {
     /// Obtains the total sum of the buffer for OBV.
     fn sum(&self) -> Num {
         self.buffer.sum()
