@@ -1,7 +1,7 @@
 //! Demonstrates how to initialize and use a Double Exponential Moving Average.
 use tatk::dema;
 use tatk::test_data::TestData;
-use tatk::traits::{Next, Value};
+use tatk::traits::Next;
 
 fn main() {
     let period: usize = 10;

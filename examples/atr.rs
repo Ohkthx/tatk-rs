@@ -1,7 +1,7 @@
 //! Demonstrates how to initialize and use an Average True Range.
 use tatk::atr;
 use tatk::test_data::TestData;
-use tatk::traits::{Next, Value};
+use tatk::traits::Next;
 
 fn main() {
     let period: usize = 10;

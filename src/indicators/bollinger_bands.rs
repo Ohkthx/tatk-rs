@@ -11,8 +11,9 @@
 //! * `SMA` is the moving average of a period.
 //! * `σ` is the standard deviation of the period.
 //! * `d` is the distance from the SMA to calculate.
+
 use super::SimpleMovingAverage;
-use crate::traits::{Next, Period, Stats, Value};
+use crate::traits::{InternalValue, Next, Period, Stats};
 use crate::{Num, TAError};
 
 /// Bollinger Bands (BBands). More recent data is weighted heavier than older data.
@@ -31,7 +32,7 @@ use crate::{Num, TAError};
 #[derive(Debug)]
 pub struct BollingerBands<L>
 where
-    L: Value + Period + Stats,
+    L: InternalValue + Period + Stats,
 {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -82,7 +83,7 @@ impl BollingerBands<SimpleMovingAverage> {
 
 impl<L> BollingerBands<L>
 where
-    L: Value + Period + Stats,
+    L: InternalValue + Period + Stats,
 {
     /// Creates Bollinger Bands using an alternative line, such as an EMA.
     ///
@@ -93,8 +94,8 @@ where
     pub fn with_line(line: L, distance: Num) -> Result<BollingerBands<L>, TAError> {
         let distance = distance.abs();
         let stdev = line.stdev(true);
-        let lower = line.value() - (stdev * distance);
-        let upper = line.value() + (stdev * distance);
+        let lower = line.internal_value() - (stdev * distance);
+        let upper = line.internal_value() + (stdev * distance);
 
         Ok(Self {
             period: line.period(),
@@ -103,6 +104,11 @@ where
             lower,
             upper,
         })
+    }
+
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.line.internal_value()
     }
 
     /// Distance the standard deviation must be for the lower and upper bands.
@@ -123,7 +129,7 @@ where
 
 impl<L> Period for BollingerBands<L>
 where
-    L: Value + Period + Stats,
+    L: InternalValue + Period + Stats,
 {
     /// Period (window) for the samples.
     fn period(&self) -> usize {
@@ -131,19 +137,9 @@ where
     }
 }
 
-impl<L> Value for BollingerBands<L>
-where
-    L: Value + Period + Stats,
-{
-    /// Current and most recent SMA value calculated.
-    fn value(&self) -> Num {
-        self.line.value()
-    }
-}
-
 impl<L> Next<Num> for BollingerBands<L>
 where
-    L: Value + Period + Stats + Next<Num>,
+    L: InternalValue + Period + Stats + Next<Num>,
 {
     /// Lower, Signal, Upper,
     type Output = (Num, <L as Next<Num>>::Output, Num);

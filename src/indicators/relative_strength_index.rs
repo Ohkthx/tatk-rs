@@ -13,8 +13,10 @@
 //! * `z` = Period - 1.
 //! * `x1` = Most recent gain.
 //! * `y1` = Most recent loss.
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Relative Strength Index (RSI)
 ///
@@ -31,7 +33,7 @@ use crate::{Buffer, Num, TAError};
 /// * `z` = Period - 1.
 /// * `x1` = Most recent gain.
 /// * `y1` = Most recent loss.
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct RelativeStrengthIndex {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -135,6 +137,11 @@ impl RelativeStrengthIndex {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Changes the Oversold Threshold from the default (20.0)
     pub fn set_oversold(&mut self, oversold_value: Num) {
         self.oversold = oversold_value;
@@ -183,20 +190,6 @@ impl RelativeStrengthIndex {
         *loss_avg = (*loss_avg * period_value + loss) / period as Num;
 
         100.0 - (100.0 / (1.0 + (*gain_avg / *loss_avg)))
-    }
-}
-
-impl Period for RelativeStrengthIndex {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for RelativeStrengthIndex {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
     }
 }
 

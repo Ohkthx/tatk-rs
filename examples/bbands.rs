@@ -2,7 +2,7 @@
 use tatk::ema;
 use tatk::indicators::BollingerBands;
 use tatk::test_data::TestData;
-use tatk::traits::{Next, Value};
+use tatk::traits::Next;
 
 fn main() {
     let period: usize = 10;

@@ -4,7 +4,6 @@
 fn create_variance_sample() {
     use tatk::indicators::Variance;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = Variance::new(10, &DATA[..DATA.len() - 1], true).unwrap();
@@ -31,7 +30,6 @@ fn next_variance_sample() {
 fn create_variance_population() {
     use tatk::indicators::Variance;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = Variance::new(10, &DATA[..DATA.len() - 1], false).unwrap();
@@ -58,7 +56,6 @@ fn next_variance_population() {
 fn create_stdev_sample() {
     use tatk::indicators::StandardDeviation;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = StandardDeviation::new(10, &DATA[..DATA.len() - 1], true).unwrap();
@@ -85,7 +82,6 @@ fn next_stdev_sample() {
 fn create_stdev_population() {
     use tatk::indicators::StandardDeviation;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = StandardDeviation::new(10, &DATA[..DATA.len() - 1], false).unwrap();
@@ -112,7 +108,6 @@ fn next_stdev_population() {
 fn create_linereg() {
     use tatk::indicators::LinearRegression;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = LinearRegression::new(10, &DATA[..DATA.len() - 1]).unwrap();

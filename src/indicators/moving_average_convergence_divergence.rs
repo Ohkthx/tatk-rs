@@ -10,9 +10,11 @@
 //!
 //! * `x` = Short EMA of period `n`
 //! * `y` = Long EMA of period `n`
+
 use super::ExponentialMovingAverage;
-use crate::traits::{AsValue, Next, Period, Value};
+use crate::traits::{AsValue, InternalValue, Next, Period};
 use crate::{Num, TAError};
+use tatk_derive::InternalValue;
 
 /// Moving Average Convergence and Divergence (MACD)
 ///
@@ -26,7 +28,7 @@ use crate::{Num, TAError};
 ///
 /// * `x` = Short EMA of period `n`
 /// * `y` = Long EMA of period `n`
-#[derive(Debug)]
+#[derive(Debug, InternalValue)]
 pub struct MovingAverageConvergenceDivergence {
     /// MACD's current value.
     value: Num,
@@ -118,6 +120,11 @@ impl MovingAverageConvergenceDivergence {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Current and most recent signal value calculated.
     pub fn signal_value(&self) -> Num {
         self.ema_signal.value()
@@ -143,13 +150,6 @@ impl Period for MovingAverageConvergenceDivergence {
     /// Period (window) for the signal.
     fn period(&self) -> usize {
         self.ema_signal.period()
-    }
-}
-
-impl Value for MovingAverageConvergenceDivergence {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
     }
 }
 

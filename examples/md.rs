@@ -1,7 +1,7 @@
 //! Demonstrates how to initialize and use a McGinley Dynamic Indicator.
 use tatk::mdi;
 use tatk::test_data::TestData;
-use tatk::traits::{Next, Value};
+use tatk::traits::Next;
 
 fn main() {
     let period: usize = 10;

@@ -9,8 +9,10 @@
 //! * `H` = highest value for the data point / candle.
 //! * `L` = lowest value for the data point / candle.
 //! * `C` = last close prior to this data point.
-use crate::traits::{Close, High, Low, Next, Period, Stats, Value};
+
+use crate::traits::{Close, High, InternalValue, Low, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Used for conversions. Holds High (0), Low (1), and Close (2) values.
 #[derive(Copy, Clone)]
@@ -48,7 +50,7 @@ impl Close for TrueRangeData {
 /// * `H` = highest value for the data point / candle.
 /// * `L` = lowest value for the data point / candle.
 /// * `C` = last close prior to this data point.
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct TrueRange {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -114,6 +116,11 @@ impl TrueRange {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Calculates a new TR, requring a prior close.
     /// * 0 = High
     /// * 1 = Low
@@ -131,25 +138,11 @@ impl TrueRange {
     }
 }
 
-impl Period for TrueRange {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for TrueRange {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
 impl<T> Next<&T> for TrueRange
 where
     T: High + Low + Close,
 {
-    /// Next Value for the TR.
+    /// Next value for the TR.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new TR.
@@ -167,7 +160,7 @@ where
 }
 
 impl Next<(Num, Num, Num)> for TrueRange {
-    /// Next Value for the TR.
+    /// Next value for the TR.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new TR.

@@ -4,7 +4,6 @@
 fn create_macd() {
     use tatk::indicators::MovingAverageConvergenceDivergence;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator =
@@ -33,7 +32,6 @@ fn next_macd() {
 fn create_rsi() {
     use tatk::indicators::RelativeStrengthIndex;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = RelativeStrengthIndex::new(10, &DATA[..DATA.len() - 1]).unwrap();
@@ -60,7 +58,6 @@ fn next_rsi() {
 fn create_bbands() {
     use tatk::indicators::BollingerBands;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = BollingerBands::new(10, &DATA[..DATA.len() - 1], 2.0).unwrap();
@@ -87,9 +84,8 @@ fn next_bbands() {
 fn create_atr() {
     use tatk::indicators::AverageTrueRange;
     use tatk::test_data::{Candle, TestData};
-    use tatk::traits::Value;
-
     let candles: Vec<Candle> = TestData::candles();
+
     let indicator = AverageTrueRange::new(10, &candles[..candles.len() - 1]).unwrap();
     assert_eq!(indicator.value(), 839.944706407304)
 }
@@ -102,8 +98,8 @@ fn next_atr() {
     use tatk::indicators::AverageTrueRange;
     use tatk::test_data::{Candle, TestData};
     use tatk::traits::Next;
-
     let candles: Vec<Candle> = TestData::candles();
+
     let mut indicator = AverageTrueRange::new(10, &candles[..candles.len() - 1]).unwrap();
     assert_eq!(
         indicator.next(candles[candles.len() - 1]),

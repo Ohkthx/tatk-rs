@@ -1,13 +1,15 @@
 //! Linear Regression (LR / LineReg), creates a best fit line.
 //!
 //! Creates a line that best fits a period of data using the least squares approach.
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Linear Regression (LR / LineReg), creates a best fit line.
 ///
 /// Creates a line that best fits a period of data using the least squares approach.
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct LinearRegression {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -94,6 +96,11 @@ impl LinearRegression {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Calculates the intercept and slope for the line.
     ///
     /// # Arguments
@@ -163,22 +170,8 @@ impl LinearRegression {
     }
 }
 
-impl Period for LinearRegression {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for LinearRegression {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
 impl Next<Num> for LinearRegression {
-    /// Next Value for the LR.
+    /// Next value for the LR.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new LR.
@@ -206,7 +199,7 @@ impl<T> Next<T> for LinearRegression
 where
     T: AsValue,
 {
-    /// Next Value for the LR.
+    /// Next value for the LR.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new LR.

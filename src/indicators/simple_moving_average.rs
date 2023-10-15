@@ -1,11 +1,13 @@
 //! Simple Moving Average (SMA)
 //!
 //! Average moves within a period.
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Simple Moving Average (SMA), the average within a period that moves as data is added.
-#[derive(Debug)]
+#[derive(Debug, Period, InternalValue)]
 pub struct SimpleMovingAverage {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -52,24 +54,15 @@ impl SimpleMovingAverage {
             buffer,
         })
     }
-}
 
-impl Period for SimpleMovingAverage {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for SimpleMovingAverage {
     /// Current and most recent value calculated.
-    fn value(&self) -> Num {
+    pub fn value(&self) -> Num {
         self.value
     }
 }
 
 impl Next<Num> for SimpleMovingAverage {
-    /// Next Value for the SMA.
+    /// Next value for the SMA.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new SMA.
@@ -91,7 +84,7 @@ impl<T> Next<T> for SimpleMovingAverage
 where
     T: AsValue,
 {
-    /// Next Value for the SMA.
+    /// Next value for the SMA.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new SMA.

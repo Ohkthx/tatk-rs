@@ -9,8 +9,10 @@
 //! * `x` = current close (most recent)
 //! * `k` = modifies the period, normally 0.6
 //! * `n` = period
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// McGinley Dynamic (MD)
 ///
@@ -23,7 +25,7 @@ use crate::{Buffer, Num, TAError};
 /// * `x` = current close (most recent)
 /// * `k` = modifies the period, normally 0.6
 /// * `n` = period
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct McGinleyDynamic {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -84,6 +86,11 @@ impl McGinleyDynamic {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Calculates an MD with newly provided data and the last MD.
     ///
     /// # Arguments
@@ -99,25 +106,11 @@ impl McGinleyDynamic {
     }
 }
 
-impl Period for McGinleyDynamic {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for McGinleyDynamic {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
 impl Next<Num> for McGinleyDynamic {
-    /// Next Value for the MD.
+    /// Next value for the McGinley Dynamic.
     type Output = Num;
 
-    /// Supply an additional value to recalculate a new MD.
+    /// Supply an additional value to recalculate a new McGinley Dynamic.
     ///
     /// # Arguments
     ///
@@ -135,7 +128,7 @@ impl<T> Next<T> for McGinleyDynamic
 where
     T: AsValue,
 {
-    /// Next Value for the MD.
+    /// Next value for the McGinley Dynamic.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new MD.

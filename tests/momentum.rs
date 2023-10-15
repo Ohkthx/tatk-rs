@@ -4,7 +4,7 @@
 fn create_sma() {
     use tatk::indicators::SimpleMovingAverage;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
+
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = SimpleMovingAverage::new(10, &DATA[..DATA.len() - 1]).unwrap();
@@ -31,7 +31,7 @@ fn next_sma() {
 fn create_ema() {
     use tatk::indicators::ExponentialMovingAverage;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
+
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = ExponentialMovingAverage::new(10, &DATA[..DATA.len() - 1]).unwrap();
@@ -58,7 +58,7 @@ fn next_ema() {
 fn create_dema() {
     use tatk::indicators::DoubleExponentialMovingAverage;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
+
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = DoubleExponentialMovingAverage::new(10, &DATA[..DATA.len() - 1]).unwrap();
@@ -85,7 +85,7 @@ fn next_dema() {
 fn create_md() {
     use tatk::indicators::McGinleyDynamic;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
+
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = McGinleyDynamic::new(10, &DATA[..DATA.len() - 1], 0.6).unwrap();
@@ -112,9 +112,8 @@ fn next_md() {
 fn create_obv() {
     use tatk::indicators::OnBalanceVolume;
     use tatk::test_data::{Candle, TestData};
-    use tatk::traits::Value;
-
     let candles: Vec<Candle> = TestData::candles();
+
     let indicator = OnBalanceVolume::new(10, &candles[..candles.len() - 1]).unwrap();
     assert_eq!(indicator.value(), 201742.77812596984)
 }
@@ -127,8 +126,8 @@ fn next_obv() {
     use tatk::indicators::OnBalanceVolume;
     use tatk::test_data::{Candle, TestData};
     use tatk::traits::Next;
-
     let candles: Vec<Candle> = TestData::candles();
+
     let mut indicator = OnBalanceVolume::new(10, &candles[..candles.len() - 1]).unwrap();
     assert_eq!(
         indicator.next(candles[candles.len() - 1]),
@@ -142,7 +141,6 @@ fn next_obv() {
 fn create_roc() {
     use tatk::indicators::RateOfChange;
     use tatk::test_data::TestData;
-    use tatk::traits::Value;
     const DATA: &[f64] = TestData::talib_small();
 
     let indicator = RateOfChange::new(10, &DATA[..DATA.len() - 1]).unwrap();

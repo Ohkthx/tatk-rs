@@ -11,8 +11,10 @@
 //! * `x` = current close (most recent)
 //! * `y` = last close
 //! * `z` = current volume
-use crate::traits::{Close, Next, Period, Stats, Value, Volume};
+
+use crate::traits::{Close, InternalValue, Next, Period, Stats, Volume};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Used for conversions. Holds Close (0), and Volume (1) values.
 #[derive(Copy, Clone)]
@@ -45,7 +47,7 @@ impl Volume for Data {
 /// * `x` = current close (most recent)
 /// * `y` = last close
 /// * `z` = current volume
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct OnBalanceVolume {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -109,6 +111,11 @@ impl OnBalanceVolume {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Calculates the On-Balance Value.
     ///
     /// # Arguments
@@ -133,25 +140,11 @@ impl OnBalanceVolume {
     }
 }
 
-impl Period for OnBalanceVolume {
-    /// Period (window) for the history.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for OnBalanceVolume {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
 impl<T> Next<T> for OnBalanceVolume
 where
     T: Close + Volume,
 {
-    /// Next Value for the OBV.
+    /// Next value for the OBV.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new OBV.
@@ -170,7 +163,7 @@ where
 }
 
 impl Next<(Num, Num)> for OnBalanceVolume {
-    /// Next Value for the OBV.
+    /// Next value for the OBV.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new OBV.

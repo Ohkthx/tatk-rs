@@ -8,10 +8,12 @@
 //!
 //! * `TR` = true range
 //! * `n` = period
+
 use super::true_range::TrueRangeData;
 use super::TrueRange;
-use crate::traits::{Close, High, Low, Next, Period, Stats, Value};
+use crate::traits::{Close, High, InternalValue, Low, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Average True Range (ATR), for a `n` true ranges.
 ///
@@ -23,7 +25,7 @@ use crate::{Buffer, Num, TAError};
 ///
 /// * `TR` = true range
 /// * `n` = period
-#[derive(Debug)]
+#[derive(Debug, Period, InternalValue)]
 pub struct AverageTrueRange {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -93,6 +95,11 @@ impl AverageTrueRange {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Caclulates a new ATR, requring a prior close.
     fn calculate(tr_value: Num, period: usize, last_atr: Num) -> Num {
         let top = (last_atr * (period as Num - 1.0)) + tr_value;
@@ -100,25 +107,11 @@ impl AverageTrueRange {
     }
 }
 
-impl Period for AverageTrueRange {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for AverageTrueRange {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
 impl<T> Next<T> for AverageTrueRange
 where
     T: High + Low + Close,
 {
-    /// Next Value for the ATR.
+    /// Next value for the ATR.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new ATR.
@@ -139,7 +132,7 @@ where
 }
 
 impl Next<(Num, Num, Num)> for AverageTrueRange {
-    /// Next Value for the ATR.
+    /// Next value for the ATR.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new ATR.

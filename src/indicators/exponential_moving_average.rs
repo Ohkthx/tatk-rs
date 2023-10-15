@@ -10,8 +10,10 @@
 //! * `y` = last EMA
 //! * `k` = 2 * (n + 1)
 //! * `n` = period
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Exponential Moving Average (EMA). More recent data is weighted heavier than older data.
 ///
@@ -24,7 +26,7 @@ use crate::{Buffer, Num, TAError};
 /// * `y` = last EMA
 /// * `k` = 2 * (n + 1)
 /// * `n` = period
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct ExponentialMovingAverage {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -90,6 +92,11 @@ impl ExponentialMovingAverage {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Smoothing factor.
     fn k(&self) -> &Num {
         &self.k
@@ -107,22 +114,8 @@ impl ExponentialMovingAverage {
     }
 }
 
-impl Period for ExponentialMovingAverage {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for ExponentialMovingAverage {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
 impl Next<Num> for ExponentialMovingAverage {
-    /// Next Value for the EMA.
+    /// Next value for the EMA.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new EMA.
@@ -142,7 +135,7 @@ impl<T> Next<T> for ExponentialMovingAverage
 where
     T: AsValue,
 {
-    /// Next Value for the EMA.
+    /// Next value for the EMA.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new EMA.

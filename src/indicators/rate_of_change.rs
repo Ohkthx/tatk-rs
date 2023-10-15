@@ -8,8 +8,10 @@
 //!
 //! * `x` = current value (most recent)
 //! * `y` = value `n` periods prior.
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Rate of Change (ROC), Measures percentage change in value.
 ///
@@ -21,7 +23,7 @@ use crate::{Buffer, Num, TAError};
 ///
 /// * `x` = current value (most recent)
 /// * `y` = value `n` periods prior.
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct RateOfChange {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -90,6 +92,11 @@ impl RateOfChange {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Calculates an ROC with newly provided datal.
     ///
     /// # Arguments
@@ -101,22 +108,8 @@ impl RateOfChange {
     }
 }
 
-impl Period for RateOfChange {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for RateOfChange {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
 impl Next<Num> for RateOfChange {
-    /// Next Value for the ROC.
+    /// Next value for the ROC.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new ROC.
@@ -137,7 +130,7 @@ impl<T> Next<T> for RateOfChange
 where
     T: AsValue,
 {
-    /// Next Value for the ROC.
+    /// Next value for the ROC.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new ROC.

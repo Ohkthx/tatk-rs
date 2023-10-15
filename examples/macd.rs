@@ -1,7 +1,7 @@
 //! Demonstrates how to initialize and use a Moving Average Convergence and Divergence.
 use tatk::macd;
 use tatk::test_data::TestData;
-use tatk::traits::{Next, Value};
+use tatk::traits::Next;
 
 fn main() {
     let short: usize = 8;

@@ -12,8 +12,10 @@
 //! * `x` is the current value in a set.
 //! * `μ` is the mean of the set.
 //! * `∑` is the sum.
-use crate::traits::{AsValue, Next, Period, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Standard Deviation (SD/STDEV)
 ///
@@ -29,7 +31,7 @@ use crate::{Buffer, Num, TAError};
 /// * `x` is the current value in a set.
 /// * `μ` is the mean of the set.
 /// * `∑` is the sum.
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct StandardDeviation {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -81,23 +83,14 @@ impl StandardDeviation {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Indicates either sample or population being used.
     pub fn is_sample(&self) -> bool {
         self.is_sample
-    }
-}
-
-impl Period for StandardDeviation {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for StandardDeviation {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
     }
 }
 

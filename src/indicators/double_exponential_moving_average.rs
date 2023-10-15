@@ -11,9 +11,11 @@
 //! * `x` = \[EMA(n)\] Current EMA of period `n`
 //! * `y` = \[EMA(EMA(n))\] EMA of EMA(n)
 //! * `n` = period
+
 use super::ExponentialMovingAverage;
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Double Exponential Moving Average (DEMA)
 ///
@@ -28,7 +30,7 @@ use crate::{Buffer, Num, TAError};
 /// * `x` = \[EMA(n)\] Current EMA of period `n`
 /// * `y` = \[EMA(EMA(n))\] EMA of EMA(n)
 /// * `n` = period
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct DoubleExponentialMovingAverage {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -109,24 +111,15 @@ impl DoubleExponentialMovingAverage {
             buffer,
         })
     }
-}
 
-impl Period for DoubleExponentialMovingAverage {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for DoubleExponentialMovingAverage {
     /// Current and most recent value calculated.
-    fn value(&self) -> Num {
+    pub fn value(&self) -> Num {
         self.value
     }
 }
 
 impl Next<Num> for DoubleExponentialMovingAverage {
-    /// Next Value for the DEMA.
+    /// Next value for the DEMA.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new DEMA.
@@ -148,7 +141,7 @@ impl<T> Next<T> for DoubleExponentialMovingAverage
 where
     T: AsValue,
 {
-    /// Next Value for the DEMA.
+    /// Next value for the DEMA.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new DEMA.
