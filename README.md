@@ -47,6 +47,10 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
   - Variance (Var(X))
   - Standard Deviation (SD/STDEV)
   - Cross (Cross), checks two lines for Golden or Death cross.
+- **Macros, Traits, and Derives**
+  - [macros.rs](https://github.com/Ohkthx/tatk-rs/tree/main/src/macros.rs)
+  - [traits.rs](https://github.com/Ohkthx/tatk-rs/tree/main/src/traits.rs)
+  - [tatk_derive/lib.rs](https://github.com/Ohkthx/tatk-rs/tree/main/tatk_derive/src/lib.rs)
 
 ## Documentation
 
@@ -59,7 +63,6 @@ The following traits are either used by the crate on indicators or to be defined
 - **Indicator**
   - Stats - Basic statistics for the indicator such as: sum, mean, variance, and standard deviation.
   - Period - Period of window of the data for the indicator.
-  - Value - Current value held by the indicator.
   - Next - Add a new data point to the indicator to recalculate value.
 - **User Defined**
   - AsValue - Alternative value that can be passed to an Indicators `Next`.
@@ -69,9 +72,9 @@ The following traits are either used by the crate on indicators or to be defined
   - High - Highest value for the data type.
   - Volume - Total volume for the data type.
 - **Others**
-  - HL2 - Average of the Highest and Lowest values, requires `High` and `Low` to be defined.
-  - HLC3 - Average of the Highest, Lowest, and Close values, requires `High`, `Low`, and `Close` to be defined.
-  - OHLC4 - Average of the Open, Highest, Lowest, and Close values, requires `Open`, `High`, `Low`, and `Close` to be defined.
+  - Hl2 - Average of the Highest and Lowest values, requires `High` and `Low` to be defined.
+  - Hlc3 - Average of the Highest, Lowest, and Close values, requires `High`, `Low`, and `Close` to be defined.
+  - Ohlc4 - Average of the Open, Highest, Lowest, and Close values, requires `Open`, `High`, `Low`, and `Close` to be defined.
 
 ## Examples
 
