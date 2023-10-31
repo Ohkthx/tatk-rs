@@ -1,8 +1,10 @@
 //! Demonstrates how to initialize and use the various traits.
-use tatk::traits::{AsValue, Close, High, Low, Open, Volume, OHLC4};
+use tatk::traits::{AsValue, Close, High, Low, Ohlc4, Open, Volume};
 use tatk::Num;
+use tatk_derive::{Close, High, Low, Open, Volume};
 
 // Holds snapshot data for a product.
+#[derive(Open, Close, Low, High, Volume)]
 struct Candle {
     open: Num,
     close: Num,
@@ -11,42 +13,8 @@ struct Candle {
     volume: Num,
 }
 
-// Required for OHLC trait.
-impl Close for Candle {
-    fn close(&self) -> Num {
-        self.close
-    }
-}
-
-// Required for OHLC trait.
-impl Open for Candle {
-    fn open(&self) -> Num {
-        self.open
-    }
-}
-
-// Required for OHLC trait.
-impl Low for Candle {
-    fn low(&self) -> Num {
-        self.low
-    }
-}
-
-// Required for OHLC trait.
-impl High for Candle {
-    fn high(&self) -> Num {
-        self.high
-    }
-}
-// Required for the user-defined AsValue trait.
-impl Volume for Candle {
-    fn volume(&self) -> Num {
-        self.volume
-    }
-}
-
 // Add Open, High, Low, Close to the Candle.
-impl OHLC4 for Candle {}
+impl Ohlc4 for Candle {}
 
 // Add unique AsValue to be passed to indicators.
 // Allows for manipulation of data before passing to indicator.

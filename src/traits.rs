@@ -1,5 +1,4 @@
 //! Traits for both indicators and user-defined data types.
-//!
 use crate::Num;
 
 /// Indicator: Statistics for the indicator.
@@ -20,10 +19,10 @@ pub trait Period {
     fn period(&self) -> usize;
 }
 
-/// Indicator: Current alue for an indicator.
-pub trait Value {
+/// Indicator: Current internal value for an indicator.
+pub trait InternalValue {
     /// Current alue for an indicator.
-    fn value(&self) -> Num;
+    fn internal_value(&self) -> Num;
 }
 
 /// Indicator: Add new data to an indicator.
@@ -82,7 +81,7 @@ pub trait Volume {
 }
 
 /// Average between High and Low traits.
-pub trait HL2: High + Low {
+pub trait Hl2: High + Low {
     /// Average between High and Low traits.
     fn hl2(&self) -> Num {
         (self.high() + self.low()) / 2.0 as Num
@@ -90,7 +89,7 @@ pub trait HL2: High + Low {
 }
 
 /// Average between High, Low, and Close traits.
-pub trait HLC3: High + Low + Close {
+pub trait Hlc3: High + Low + Close {
     /// Average between High, Low, and Close traits.
     fn hlc3(&self) -> Num {
         (self.high() + self.low() + self.close()) / 3.0 as Num
@@ -98,7 +97,7 @@ pub trait HLC3: High + Low + Close {
 }
 
 /// Average between Open, High, Low, and Close traits.
-pub trait OHLC4: Open + High + Low + Close {
+pub trait Ohlc4: Open + High + Low + Close {
     /// Average between Open, High, Low, and Close traits.
     fn ohlc4(&self) -> Num {
         (self.open() + self.high() + self.low() + self.close()) / 4.0 as Num

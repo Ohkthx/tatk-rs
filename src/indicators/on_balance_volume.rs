@@ -11,8 +11,10 @@
 //! * `x` = current close (most recent)
 //! * `y` = last close
 //! * `z` = current volume
-use crate::traits::{Close, Next, Period, Stats, Value, Volume};
+
+use crate::traits::{Close, InternalValue, Next, Period, Stats, Volume};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Used for conversions. Holds Close (0), and Volume (1) values.
 #[derive(Copy, Clone)]
@@ -45,8 +47,8 @@ impl Volume for Data {
 /// * `x` = current close (most recent)
 /// * `y` = last close
 /// * `z` = current volume
-#[derive(Debug)]
-pub struct OBV {
+#[derive(Debug, InternalValue, Period)]
+pub struct OnBalanceVolume {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// OBV's current value.
@@ -57,12 +59,15 @@ pub struct OBV {
     buffer: Buffer,
 }
 
-impl OBV {
-    /// Creates a new OBV with the supplied period and initial data.
+impl OnBalanceVolume {
+    /// Creates a new On-Balance Volume with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - History of values to keep.
     /// * `data` - Array of values to create the OBV from.
@@ -70,8 +75,13 @@ impl OBV {
     where
         T: Close + Volume,
     {
-        // Make sure we have enough data.
-        if data.len() < period {
+        // Check we can calculate On-Balance Volume.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate on-balance volume",
+            )));
+        } else if data.len() < period {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for history period provided",
             )));
@@ -101,6 +111,11 @@ impl OBV {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Calculates the On-Balance Value.
     ///
     /// # Arguments
@@ -125,25 +140,11 @@ impl OBV {
     }
 }
 
-impl Period for OBV {
-    /// Period (window) for the history.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for OBV {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
-impl<T> Next<T> for OBV
+impl<T> Next<T> for OnBalanceVolume
 where
     T: Close + Volume,
 {
-    /// Next Value for the OBV.
+    /// Next value for the OBV.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new OBV.
@@ -161,8 +162,8 @@ where
     }
 }
 
-impl Next<(Num, Num)> for OBV {
-    /// Next Value for the OBV.
+impl Next<(Num, Num)> for OnBalanceVolume {
+    /// Next value for the OBV.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new OBV.
@@ -182,7 +183,7 @@ impl Next<(Num, Num)> for OBV {
     }
 }
 
-impl Stats for OBV {
+impl Stats for OnBalanceVolume {
     /// Obtains the total sum of the buffer for OBV.
     fn sum(&self) -> Num {
         self.buffer.sum()

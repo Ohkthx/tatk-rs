@@ -10,9 +10,11 @@
 //!
 //! * `x` = Short EMA of period `n`
 //! * `y` = Long EMA of period `n`
-use super::EMA;
-use crate::traits::{AsValue, Next, Period, Value};
+
+use super::ExponentialMovingAverage;
+use crate::traits::{AsValue, InternalValue, Next, Period};
 use crate::{Num, TAError};
+use tatk_derive::InternalValue;
 
 /// Moving Average Convergence and Divergence (MACD)
 ///
@@ -26,56 +28,68 @@ use crate::{Num, TAError};
 ///
 /// * `x` = Short EMA of period `n`
 /// * `y` = Long EMA of period `n`
-#[derive(Debug)]
-pub struct MACD {
+#[derive(Debug, InternalValue)]
+pub struct MovingAverageConvergenceDivergence {
     /// MACD's current value.
     value: Num,
     /// Short EMA
-    ema_short: EMA,
+    ema_short: ExponentialMovingAverage,
     /// Long EMA
-    ema_long: EMA,
+    ema_long: ExponentialMovingAverage,
     /// Signal Line, EMA of MACD values.
-    ema_signal: EMA,
+    ema_signal: ExponentialMovingAverage,
     /// If the MACD crossed the signal.
     crossed: bool,
 }
 
-impl MACD {
+impl MovingAverageConvergenceDivergence {
     /// Creates a new MACD with the supplied period and initial data. Often the short line is
     /// period of 12, long is a period of 26, and signal is period of 9.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the long
-    /// size.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Short, Signal, and Long must greater than 0.
+    /// * Short must be smaller than Long.
+    /// * Data must have at least `signal` elements.
+    /// * Data must have at least `long` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `short` - Period of the short EMA.
     /// * `long` - Period of the long EMA.
     /// * `signal` - Period of the signal EMA.
     /// * `data` - Array of values to create the MACD from.
     pub fn new(short: usize, long: usize, signal: usize, data: &[Num]) -> Result<Self, TAError> {
-        if short > long {
+        if short < 1 {
             return Err(TAError::InvalidSize(String::from(
-                "short period longer than long period provided",
+                "short cannot be less than 1 to calculate moving average convergence and divergence",
+            )));
+        } else if signal < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "signal cannot be less than 1 to calculate moving average convergence and divergence",
+            )));
+        } else if long < short {
+            return Err(TAError::InvalidSize(String::from(
+                "larger long period required to calculate moving average convergence and divergence",
             )));
         } else if data.len() < signal {
             return Err(TAError::InvalidSize(String::from(
-                "amount of data less than signal period provided",
+                "not enough data to calculate signal for moving average convergence and divergence",
             )));
         } else if data.len() < long {
             return Err(TAError::InvalidSize(String::from(
-                "amount of data less than long period provided",
+                "not enough data to calculate long for moving average convergence and divergence",
             )));
         }
 
         // Build short EMA up to the long.
-        let mut ema_short = match EMA::new(short, &data[..long]) {
+        let mut ema_short = match ExponentialMovingAverage::new(short, &data[..long]) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
 
         // Build long EMA.
-        let mut ema_long = match EMA::new(long, &data[..long]) {
+        let mut ema_long = match ExponentialMovingAverage::new(long, &data[..long]) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -92,7 +106,7 @@ impl MACD {
         }
 
         // Build signal EMA of MACDs.
-        let ema_signal = match EMA::new(signal, &signals) {
+        let ema_signal = match ExponentialMovingAverage::new(signal, &signals) {
             Ok(value) => value,
             Err(error) => return Err(error),
         };
@@ -104,6 +118,11 @@ impl MACD {
             ema_signal,
             crossed: false,
         })
+    }
+
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
     }
 
     /// Current and most recent signal value calculated.
@@ -127,21 +146,14 @@ impl MACD {
     }
 }
 
-impl Period for MACD {
+impl Period for MovingAverageConvergenceDivergence {
     /// Period (window) for the signal.
     fn period(&self) -> usize {
         self.ema_signal.period()
     }
 }
 
-impl Value for MACD {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
-impl Next<Num> for MACD {
+impl Next<Num> for MovingAverageConvergenceDivergence {
     /// Signal, Short, and Long values,
     type Output = (Num, Num, Num);
 
@@ -177,7 +189,7 @@ impl Next<Num> for MACD {
     }
 }
 
-impl<T> Next<T> for MACD
+impl<T> Next<T> for MovingAverageConvergenceDivergence
 where
     T: AsValue,
 {

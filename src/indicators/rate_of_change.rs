@@ -8,8 +8,10 @@
 //!
 //! * `x` = current value (most recent)
 //! * `y` = value `n` periods prior.
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Rate of Change (ROC), Measures percentage change in value.
 ///
@@ -21,8 +23,8 @@ use crate::{Buffer, Num, TAError};
 ///
 /// * `x` = current value (most recent)
 /// * `y` = value `n` periods prior.
-#[derive(Debug)]
-pub struct ROC {
+#[derive(Debug, InternalValue, Period)]
+pub struct RateOfChange {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// ROC's current value.
@@ -33,18 +35,26 @@ pub struct ROC {
     buffer: Buffer,
 }
 
-impl ROC {
-    /// Creates a new ROC with the supplied period and initial data.
+impl RateOfChange {
+    /// Creates a new Rate of Change with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period + 1` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the ROC from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period + 1 {
+        // Check we can calculate Rate of Change.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate rate of change",
+            )));
+        } else if data.len() < period + 1 {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -82,6 +92,11 @@ impl ROC {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Calculates an ROC with newly provided datal.
     ///
     /// # Arguments
@@ -93,22 +108,8 @@ impl ROC {
     }
 }
 
-impl Period for ROC {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for ROC {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
-impl Next<Num> for ROC {
-    /// Next Value for the ROC.
+impl Next<Num> for RateOfChange {
+    /// Next value for the ROC.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new ROC.
@@ -125,11 +126,11 @@ impl Next<Num> for ROC {
     }
 }
 
-impl<T> Next<T> for ROC
+impl<T> Next<T> for RateOfChange
 where
     T: AsValue,
 {
-    /// Next Value for the ROC.
+    /// Next value for the ROC.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new ROC.
@@ -142,7 +143,7 @@ where
     }
 }
 
-impl Stats for ROC {
+impl Stats for RateOfChange {
     /// Obtains the total sum of the buffer for ROC.
     fn sum(&self) -> Num {
         self.buffer.sum()

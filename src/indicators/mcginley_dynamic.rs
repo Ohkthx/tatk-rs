@@ -9,8 +9,10 @@
 //! * `x` = current close (most recent)
 //! * `k` = modifies the period, normally 0.6
 //! * `n` = period
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// McGinley Dynamic (MD)
 ///
@@ -23,8 +25,8 @@ use crate::{Buffer, Num, TAError};
 /// * `x` = current close (most recent)
 /// * `k` = modifies the period, normally 0.6
 /// * `n` = period
-#[derive(Debug)]
-pub struct MD {
+#[derive(Debug, InternalValue, Period)]
+pub struct McGinleyDynamic {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// Constant for period modification.
@@ -35,19 +37,27 @@ pub struct MD {
     buffer: Buffer,
 }
 
-impl MD {
-    /// Creates a new MD with the supplied period and initial data.
+impl McGinleyDynamic {
+    /// Creates a new McGinley Dynamic with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period + 1` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the MD from.
     /// * `k` - Constant used to modify selected period. Default: 0.6
     pub fn new(period: usize, data: &[Num], k: Num) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period + 1 {
+        // Check we can calculate McGinley Dynamic Indicator.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate McGinely dynamic",
+            )));
+        } else if data.len() < period + 1 {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -76,6 +86,11 @@ impl MD {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Calculates an MD with newly provided data and the last MD.
     ///
     /// # Arguments
@@ -91,25 +106,11 @@ impl MD {
     }
 }
 
-impl Period for MD {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for MD {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
-impl Next<Num> for MD {
-    /// Next Value for the MD.
+impl Next<Num> for McGinleyDynamic {
+    /// Next value for the McGinley Dynamic.
     type Output = Num;
 
-    /// Supply an additional value to recalculate a new MD.
+    /// Supply an additional value to recalculate a new McGinley Dynamic.
     ///
     /// # Arguments
     ///
@@ -123,11 +124,11 @@ impl Next<Num> for MD {
     }
 }
 
-impl<T> Next<T> for MD
+impl<T> Next<T> for McGinleyDynamic
 where
     T: AsValue,
 {
-    /// Next Value for the MD.
+    /// Next value for the McGinley Dynamic.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new MD.
@@ -140,7 +141,7 @@ where
     }
 }
 
-impl Stats for MD {
+impl Stats for McGinleyDynamic {
     /// Obtains the total sum of the buffer for MD.
     fn sum(&self) -> Num {
         self.buffer.sum()

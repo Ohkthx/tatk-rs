@@ -3,7 +3,8 @@
 //! Death Cross: `short_line` (reactive) crosses below `long_line` (historic).
 //!
 //! Golden Cross: `short_line` (reactive) crosses above `long_line` (historic).
-use crate::traits::{Next, Value};
+
+use crate::traits::{InternalValue, Next};
 use crate::Num;
 
 /// Cross, used to check if lines cross.
@@ -14,7 +15,7 @@ use crate::Num;
 #[derive(Debug)]
 pub struct Cross<L>
 where
-    L: Value,
+    L: InternalValue,
 {
     // Shorter line (shorter period)
     short_line: L,
@@ -26,7 +27,7 @@ where
 
 impl<L> Cross<L>
 where
-    L: Value + Next<Num>,
+    L: InternalValue + Next<Num>,
 {
     /// Creates a new Cross with the supplied two lines.
     ///
@@ -34,7 +35,7 @@ where
     ///
     /// Golden Cross: `short_line` (reactive) crosses above `long_line` (historic).
     ///
-    /// # Arguments
+    /// ## Arguments
     ///
     /// * `short_line` - Shorter or more reactive line.
     /// * `long_line` - Longer or more historic line.
@@ -53,12 +54,12 @@ where
 
     /// True if the lines have crossed and the `short_line` is above the `long_line`.
     pub fn is_golden(&self) -> bool {
-        self.crossed() && self.short_line.value() > self.long_line.value()
+        self.crossed() && self.short_line.internal_value() > self.long_line.internal_value()
     }
 
     /// True if the lines have crossed and the `short_line` is below the `long_line`.
     pub fn is_death(&self) -> bool {
-        self.crossed() && self.short_line.value() < self.long_line.value()
+        self.crossed() && self.short_line.internal_value() < self.long_line.internal_value()
     }
 
     /// Supply an additional value to recalculate a cross.
@@ -67,13 +68,14 @@ where
     ///
     /// * `value` - New value to add to period.
     pub fn next(&mut self, value: Num) -> bool {
-        let was_below: bool = self.short_line.value() < self.long_line.value();
+        let was_below: bool = self.short_line.internal_value() < self.long_line.internal_value();
 
         // Progress both lines.
         self.short_line.next(value);
         self.long_line.next(value);
+        let current: bool = self.short_line.internal_value() < self.long_line.internal_value();
 
-        self.crossed = was_below != (self.short_line.value() < self.long_line.value());
+        self.crossed = was_below != current;
         self.crossed()
     }
 }

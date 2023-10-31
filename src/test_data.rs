@@ -1,5 +1,7 @@
 //! Various data sets for testing.
 use crate::traits::{Close, High, Low, Open, Volume};
+use crate::Num;
+use tatk_derive::{Close, High, Low, Open, Volume};
 
 /// These numbers originate from `TA-Lib`:
 ///
@@ -408,43 +410,13 @@ const TEST_CANDLES: &[(f64, f64, f64, f64, f64)] = &[
 ];
 
 /// Holds snapshot / bar data for a product.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Open, Close, Low, High, Volume)]
 pub struct Candle {
-    open: f64,
-    close: f64,
-    high: f64,
-    low: f64,
-    volume: f64,
-}
-
-impl Open for Candle {
-    fn open(&self) -> f64 {
-        self.open
-    }
-}
-
-impl Close for Candle {
-    fn close(&self) -> f64 {
-        self.close
-    }
-}
-
-impl High for Candle {
-    fn high(&self) -> f64 {
-        self.high
-    }
-}
-
-impl Low for Candle {
-    fn low(&self) -> f64 {
-        self.low
-    }
-}
-
-impl Volume for Candle {
-    fn volume(&self) -> f64 {
-        self.volume
-    }
+    pub open: f64,
+    pub close: f64,
+    pub high: f64,
+    pub low: f64,
+    pub volume: f64,
 }
 
 /// Various data sets for testing.

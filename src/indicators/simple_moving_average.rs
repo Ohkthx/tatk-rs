@@ -1,12 +1,14 @@
 //! Simple Moving Average (SMA)
 //!
 //! Average moves within a period.
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Simple Moving Average (SMA), the average within a period that moves as data is added.
-#[derive(Debug)]
-pub struct SMA {
+#[derive(Debug, Period, InternalValue)]
+pub struct SimpleMovingAverage {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// SMA's current value.
@@ -15,18 +17,26 @@ pub struct SMA {
     buffer: Buffer,
 }
 
-impl SMA {
+impl SimpleMovingAverage {
     /// Creates a new SMA with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 0.
+    /// * Data must have at least `period` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the SMA from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period {
+        // Check we can calculate SMA.
+        if period < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 1 to calculate simple moving average",
+            )));
+        } else if data.len() < period {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -44,24 +54,15 @@ impl SMA {
             buffer,
         })
     }
-}
 
-impl Period for SMA {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for SMA {
     /// Current and most recent value calculated.
-    fn value(&self) -> Num {
+    pub fn value(&self) -> Num {
         self.value
     }
 }
 
-impl Next<Num> for SMA {
-    /// Next Value for the SMA.
+impl Next<Num> for SimpleMovingAverage {
+    /// Next value for the SMA.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new SMA.
@@ -79,11 +80,11 @@ impl Next<Num> for SMA {
     }
 }
 
-impl<T> Next<T> for SMA
+impl<T> Next<T> for SimpleMovingAverage
 where
     T: AsValue,
 {
-    /// Next Value for the SMA.
+    /// Next value for the SMA.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new SMA.
@@ -96,7 +97,7 @@ where
     }
 }
 
-impl Stats for SMA {
+impl Stats for SimpleMovingAverage {
     /// Obtains the total sum of the buffer for SMA.
     fn sum(&self) -> Num {
         self.buffer.sum()

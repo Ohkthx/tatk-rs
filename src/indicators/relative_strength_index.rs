@@ -13,8 +13,10 @@
 //! * `z` = Period - 1.
 //! * `x1` = Most recent gain.
 //! * `y1` = Most recent loss.
-use crate::traits::{AsValue, Next, Period, Stats, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Relative Strength Index (RSI)
 ///
@@ -31,8 +33,8 @@ use crate::{Buffer, Num, TAError};
 /// * `z` = Period - 1.
 /// * `x1` = Most recent gain.
 /// * `y1` = Most recent loss.
-#[derive(Debug)]
-pub struct RSI {
+#[derive(Debug, InternalValue, Period)]
+pub struct RelativeStrengthIndex {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// RSI's current value.
@@ -51,22 +53,29 @@ pub struct RSI {
     buffer: Buffer,
 }
 
-impl RSI {
+impl RelativeStrengthIndex {
     /// Creates a new RSI with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 1.
+    /// * Data must have at least `period + 1` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the RSI from.
     pub fn new(period: usize, data: &[Num]) -> Result<Self, TAError> {
-        if period + 1 > data.len() {
+        // Check we can calculate Relative Strength Index.
+        if period < 2 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 2 to calculate relative strength index",
+            )));
+        } else if data.len() < period + 1 {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period",
             )));
-        } else if period == 0 {
-            return Err(TAError::InvalidSize(String::from("period cannot be 0")));
         }
 
         let mut gains: Num = 0.0;
@@ -128,6 +137,11 @@ impl RSI {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Changes the Oversold Threshold from the default (20.0)
     pub fn set_oversold(&mut self, oversold_value: Num) {
         self.oversold = oversold_value;
@@ -179,21 +193,7 @@ impl RSI {
     }
 }
 
-impl Period for RSI {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for RSI {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
-impl Next<Num> for RSI {
+impl Next<Num> for RelativeStrengthIndex {
     /// Value for the next RSI.
     type Output = Num;
 
@@ -226,7 +226,7 @@ impl Next<Num> for RSI {
     }
 }
 
-impl<T> Next<T> for RSI
+impl<T> Next<T> for RelativeStrengthIndex
 where
     T: AsValue,
 {
@@ -243,7 +243,7 @@ where
     }
 }
 
-impl Stats for RSI {
+impl Stats for RelativeStrengthIndex {
     /// Obtains the total sum of the buffer for RSI.
     fn sum(&self) -> Num {
         self.buffer.sum()

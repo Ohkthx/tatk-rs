@@ -8,10 +8,12 @@
 //!
 //! * `TR` = true range
 //! * `n` = period
-use super::true_range::TRData;
-use super::TR;
-use crate::traits::{Close, High, Low, Next, Period, Stats, Value};
+
+use super::true_range::TrueRangeData;
+use super::TrueRange;
+use crate::traits::{Close, High, InternalValue, Low, Next, Period, Stats};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Average True Range (ATR), for a `n` true ranges.
 ///
@@ -23,24 +25,27 @@ use crate::{Buffer, Num, TAError};
 ///
 /// * `TR` = true range
 /// * `n` = period
-#[derive(Debug)]
-pub struct ATR {
+#[derive(Debug, Period, InternalValue)]
+pub struct AverageTrueRange {
     /// Size of the period (window) in which data is looked at.
     period: usize,
     /// ATR's current value.
     value: Num,
     /// True Range used for calculations.
-    true_range: TR,
+    true_range: TrueRange,
     /// Holds `period` amount of generated ATRs.
     buffer: Buffer,
 }
 
-impl ATR {
+impl AverageTrueRange {
     /// Creates a new ATR with the supplied period and initial data.
     ///
-    /// Required: The initial data must contain at least 2 data points.
+    /// ### Requirements:
     ///
-    /// # Arguments
+    /// * Period must be greater than 0.
+    /// * Data must have at least `period + 1` elements.
+    ///
+    /// ## Arguments
     ///
     /// * `period` - Size of the period / window used.
     /// * `data` - Array of values to create the ATR from.
@@ -48,15 +53,20 @@ impl ATR {
     where
         T: High + Low + Close,
     {
-        // Make sure we have enough data.
-        if data.len() < period + 1 {
+        // Check we can calculate ATR.
+        if period < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 1 to calculate average true range",
+            )));
+        } else if data.len() < period + 1 {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data to calculate average true range",
             )));
         }
 
         // Create the first `n` true ranges.
-        let mut tr = match TR::new(period, &data[..(period + 1)]) {
+        let mut tr = match TrueRange::new(period, &data[..(period + 1)]) {
             Ok(v) => v,
             Err(error) => return Err(error),
         };
@@ -85,6 +95,11 @@ impl ATR {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Caclulates a new ATR, requring a prior close.
     fn calculate(tr_value: Num, period: usize, last_atr: Num) -> Num {
         let top = (last_atr * (period as Num - 1.0)) + tr_value;
@@ -92,25 +107,11 @@ impl ATR {
     }
 }
 
-impl Period for ATR {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for ATR {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
-    }
-}
-
-impl<T> Next<T> for ATR
+impl<T> Next<T> for AverageTrueRange
 where
     T: High + Low + Close,
 {
-    /// Next Value for the ATR.
+    /// Next value for the ATR.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new ATR.
@@ -130,8 +131,8 @@ where
     }
 }
 
-impl Next<(Num, Num, Num)> for ATR {
-    /// Next Value for the ATR.
+impl Next<(Num, Num, Num)> for AverageTrueRange {
+    /// Next value for the ATR.
     type Output = Num;
 
     /// Supply an additional value to recalculate a new ATR.
@@ -143,7 +144,7 @@ impl Next<(Num, Num, Num)> for ATR {
     ///     * 1 = Low
     ///     * 2 = Close
     fn next(&mut self, value: (Num, Num, Num)) -> Self::Output {
-        let v = TRData {
+        let v = TrueRangeData {
             0: value.0, // High
             1: value.1, // Low
             2: value.2, // Close
@@ -153,7 +154,7 @@ impl Next<(Num, Num, Num)> for ATR {
     }
 }
 
-impl Stats for ATR {
+impl Stats for AverageTrueRange {
     /// Obtains the total sum of the buffer for ATR.
     fn sum(&self) -> Num {
         self.buffer.sum()

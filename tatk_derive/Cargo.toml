@@ -1,0 +1,17 @@
+[package]
+name = "tatk_derive"
+license = "MIT"
+version = "0.1.0"
+edition = "2021"
+description = "Derives for the Technical Analysis Toolkit (tatk)"
+homepage = "https://github.com/Ohkthx/tatk-rs"
+repository = "https://github.com/Ohkthx/tatk-rs"
+keywords = ["trading", "signal", "technical", "analysis", "ta"]
+include = ["*/**/***.rs"]
+
+[dependencies]
+quote = { version = "1.0.33" }
+syn = { version = "2.0.38" }
+
+[lib]
+proc-macro = true

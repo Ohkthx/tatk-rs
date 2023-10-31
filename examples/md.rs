@@ -1,7 +1,7 @@
-//! Demonstrates how to initialize and use a MD.
-use tatk::indicators::MD;
+//! Demonstrates how to initialize and use a McGinley Dynamic Indicator.
+use tatk::mdi;
 use tatk::test_data::TestData;
-use tatk::traits::{Next, Value};
+use tatk::traits::Next;
 
 fn main() {
     let period: usize = 10;
@@ -10,8 +10,8 @@ fn main() {
     println!("Data (total): {:?}", data.len());
     println!("Period: {}", period);
 
-    // Create the MD.
-    let mut md = match MD::new(period, &data[..data.len() - 1], 0.6) {
+    // Create the McGinley Dynamic Indicator.
+    let mut indicator = match mdi!(period, &data[..data.len() - 1], 0.6) {
         Ok(value) => value,
         Err(error) => panic!("{}", error),
     };
@@ -19,6 +19,10 @@ fn main() {
     // Extract last data point.
     let last_data = data[data.len() - 1];
 
-    println!("\nMD: {}", md.value());
-    println!("Adding {}. New MD: {}", last_data, md.next(last_data));
+    println!("\nMcGinley Dynamic Indicator: {}", indicator.value());
+    println!(
+        "Adding {}. New MDI: {}",
+        last_data,
+        indicator.next(last_data)
+    );
 }

@@ -11,8 +11,10 @@
 //! * `x` is the current value in a set.
 //! * `μ` is the mean of the set.
 //! * `∑` is the sum.
-use crate::traits::{AsValue, Next, Period, Value};
+
+use crate::traits::{AsValue, InternalValue, Next, Period};
 use crate::{Buffer, Num, TAError};
+use tatk_derive::{InternalValue, Period};
 
 /// Variance (Var(X))
 ///
@@ -27,7 +29,7 @@ use crate::{Buffer, Num, TAError};
 /// * `x` is the current value in a set.
 /// * `μ` is the mean of the set.
 /// * `∑` is the sum.
-#[derive(Debug)]
+#[derive(Debug, InternalValue, Period)]
 pub struct Variance {
     /// Size of the period (window) in which data is looked at.
     period: usize,
@@ -42,7 +44,10 @@ pub struct Variance {
 impl Variance {
     /// Creates a new Var(X) with the supplied period and initial data.
     ///
-    /// Required: The initial data must be at least of equal size/length or greater than the period.
+    /// ### Requirements:
+    ///
+    /// * Period must be greater than 0.
+    /// * Data must have at least `period` elements.
     ///
     /// # Arguments
     ///
@@ -50,8 +55,13 @@ impl Variance {
     /// * `data` - Array of values to create the Var(X) from.
     /// * `is_sample` - If the data is a Sample or Population, default should be True.
     pub fn new(period: usize, data: &[Num], is_sample: bool) -> Result<Self, TAError> {
-        // Make sure we have enough data.
-        if data.len() < period {
+        // Check we can calculate Variance.
+        if period < 1 {
+            return Err(TAError::InvalidSize(String::from(
+                "period cannot be less than 1 to calculate variance",
+            )));
+        } else if data.len() < period {
+            // Make sure we have enough data.
             return Err(TAError::InvalidData(String::from(
                 "not enough data for period provided",
             )));
@@ -71,23 +81,14 @@ impl Variance {
         })
     }
 
+    /// Current and most recent value calculated.
+    pub fn value(&self) -> Num {
+        self.value
+    }
+
     /// Indicates either sample or population being used.
     pub fn is_sample(&self) -> bool {
         self.is_sample
-    }
-}
-
-impl Period for Variance {
-    /// Period (window) for the samples.
-    fn period(&self) -> usize {
-        self.period
-    }
-}
-
-impl Value for Variance {
-    /// Current and most recent value calculated.
-    fn value(&self) -> Num {
-        self.value
     }
 }
 
