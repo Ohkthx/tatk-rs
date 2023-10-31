@@ -4,6 +4,7 @@ license = "MIT"
 version = "0.1.0"
 edition = "2021"
 description = "Derives for the Technical Analysis Toolkit (tatk)"
+readme = "README.md"
 homepage = "https://github.com/Ohkthx/tatk-rs"
 repository = "https://github.com/Ohkthx/tatk-rs"
 keywords = ["trading", "signal", "technical", "analysis", "ta"]

@@ -23,11 +23,6 @@
 
 The objective of this crate is analyzing signals and indicators of data and providing additional tools for accurate analysis. There are several other wonderful crates that implement similar algorithms, however they did not meet my personal needs or had minor errors in their calculations.
 
-```toml
-[dependencies]
-tatk = { git = "https://github.com/ohkthx/tatk-rs" }
-```
-
 ## Features
 - **Momentum / Moving Averages**
   - Simple Moving Average (SMA)
@@ -48,8 +43,8 @@ tatk = { git = "https://github.com/ohkthx/tatk-rs" }
   - Standard Deviation (SD/STDEV)
   - Cross (Cross), checks two lines for Golden or Death cross.
 - **Macros, Traits, and Derives**
-  - [macros.rs](https://github.com/Ohkthx/tatk-rs/tree/main/src/macros.rs)
-  - [traits.rs](https://github.com/Ohkthx/tatk-rs/tree/main/src/traits.rs)
+  - [macros.rs](https://github.com/Ohkthx/tatk-rs/tree/main/tatk/src/macros.rs)
+  - [traits.rs](https://github.com/Ohkthx/tatk-rs/tree/main/tatk/src/traits.rs)
   - [tatk_derive/lib.rs](https://github.com/Ohkthx/tatk-rs/tree/main/tatk_derive/src/lib.rs)
 
 ## Documentation
