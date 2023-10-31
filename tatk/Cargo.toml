@@ -1,0 +1,79 @@
+[package]
+name = "tatk"
+license = "MIT"
+version = "0.3.0"
+edition = "2021"
+description = "Technical Analysis Toolkit"
+readme = "README.md"
+homepage = "https://github.com/Ohkthx/tatk-rs"
+repository = "https://github.com/Ohkthx/tatk-rs"
+keywords = ["trading", "signal", "technical", "analysis", "ta"]
+include = ["*/**/***.rs"]
+
+[features]
+default = []
+full = ["test-data"]
+f32 = []
+test-data = []
+
+[[example]]
+name = "sma"
+path = "../examples/sma.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "ema"
+path = "../examples/ema.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "dema"
+path = "../examples/dema.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "macd"
+path = "../examples/macd.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "rsi"
+path = "../examples/rsi.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "bbands"
+path = "../examples/bbands.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "atr"
+path = "../examples/atr.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "md"
+path = "../examples/md.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "obv"
+path = "../examples/obv.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "roc"
+path = "../examples/roc.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "linereg"
+path = "../examples/linereg.rs"
+required-features = ["test-data"]
+
+[[example]]
+name = "traits"
+path = "../examples/user_traits.rs"
+
+[dependencies]
+tatk_derive = { version = "0.1.0", path = "../tatk_derive" }
